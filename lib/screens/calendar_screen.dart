@@ -1,9 +1,9 @@
-
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:hijri/hijri_calendar.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'package:todo_app/l10n/app_localizations.dart';
-import '../widgets/skylight_drawer.dart';
+import 'package:provider/provider.dart';
+import 'package:calendar_view/calendar_view.dart';
+import 'package:intl/intl.dart';
+import '../providers/font_size_provider.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -13,178 +13,502 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
-  bool _isHijriMode = false;
+  // Timer for updating the clock
+  Timer? _timer;
+  DateTime _currentTime = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    _selectedDay = _focusedDay;
-    // HijriCalendar.setLocal(Localizations.localeOf(context).languageCode); // context not available yet
+    // Update time every minute
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      if (mounted) {
+        setState(() {
+          _currentTime = DateTime.now();
+        });
+      }
+    });
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _addDummyEvents();
+    });
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    HijriCalendar.setLocal(Localizations.localeOf(context).languageCode);
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _addDummyEvents() {
+    // Check if context is valid before accessing provider
+    if (!mounted) return;
+    
+    // Safely access the controller
+    EventController? controller;
+    try {
+      controller = CalendarControllerProvider.of(context).controller;
+    } catch (e) {
+      // Controller might not be found if the widget is not under CalendarControllerProvider
+      return;
+    }
+
+    if (controller.allEvents.isEmpty) {
+      final now = DateTime.now();
+      
+      final events = [
+        CalendarEventData(
+          date: now,
+          title: "Demo Demo",
+          startTime: DateTime(now.year, now.month, now.day, 10, 0),
+          endTime: DateTime(now.year, now.month, now.day, 10, 30),
+          color: const Color(0xFFF8BBD0), // Pink
+        ),
+        CalendarEventData(
+          date: now,
+          title: "Demo Demo",
+          startTime: DateTime(now.year, now.month, now.day, 16, 45),
+          endTime: DateTime(now.year, now.month, now.day, 17, 45),
+          color: const Color(0xFFD1C4E9), // Purple
+        ),
+        CalendarEventData(
+          date: now.add(const Duration(days: 1)),
+          title: "Demo Demo",
+          startTime: DateTime(now.year, now.month, now.day + 1, 10, 0),
+          endTime: DateTime(now.year, now.month, now.day + 1, 10, 30),
+          color: const Color(0xFFF8BBD0), // Pink
+        ),
+        CalendarEventData(
+          date: now.add(const Duration(days: 2)),
+          title: "Demo Demo",
+          startTime: DateTime(now.year, now.month, now.day + 2, 18, 30),
+          endTime: DateTime(now.year, now.month, now.day + 2, 19, 30),
+          color: const Color(0xFFAED581), // Light Green
+        ),
+        CalendarEventData(
+          date: now.add(const Duration(days: 2)),
+          title: "Demo Demo",
+          startTime: DateTime(now.year, now.month, now.day + 2, 18, 45),
+          endTime: DateTime(now.year, now.month, now.day + 2, 19, 45),
+          color: const Color(0xFFD1C4E9), // Purple
+        ),
+        CalendarEventData(
+          date: now.add(const Duration(days: 3)),
+          title: "Demo Demo",
+          startTime: DateTime(now.year, now.month, now.day + 3, 19, 30),
+          endTime: DateTime(now.year, now.month, now.day + 3, 20, 30),
+          color: const Color(0xFFFFCC80), // Orange
+        ),
+        CalendarEventData(
+          date: now.add(const Duration(days: 4)),
+          title: "Demo Demo",
+          startTime: DateTime(now.year, now.month, now.day + 4, 11, 0),
+          endTime: DateTime(now.year, now.month, now.day + 4, 12, 0),
+          color: const Color(0xFF64B5F6), // Blue
+        ),
+         CalendarEventData(
+          date: now.add(const Duration(days: 10)),
+          title: "Demo Demo",
+          startTime: DateTime(now.year, now.month, now.day + 10, 10, 0),
+          endTime: DateTime(now.year, now.month, now.day + 10, 11, 0),
+          color: const Color(0xFF64B5F6), // Blue
+        ),
+        CalendarEventData(
+          date: now.add(const Duration(days: 10)),
+          title: "Presidents' Day",
+          startTime: DateTime(now.year, now.month, now.day + 10, 0, 0),
+          endTime: DateTime(now.year, now.month, now.day + 10, 23, 59),
+          color: const Color(0xFFFF9800), // Dark Orange
+        ),
+      ];
+
+      controller.addAll(events);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final hijriDate = HijriCalendar.fromDate(_selectedDay ?? DateTime.now());
+    final fontSizeProvider = Provider.of<FontSizeProvider>(context);
+    final scale = fontSizeProvider.fontScale;
 
     return Scaffold(
       backgroundColor: Colors.white,
-      // drawer: const SkylightDrawer(), // Removed drawer
-      appBar: AppBar(
-        title: Text(
-          l10n.calendar,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-            fontSize: 24,
-          ),
-        ),
-        centerTitle: false,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black87),
-        automaticallyImplyLeading: false, // Don't show back button or drawer icon
-        actions: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Switch(
-                value: _isHijriMode,
-                onChanged: (value) {
-                  setState(() {
-                    _isHijriMode = value;
-                  });
+      body: SafeArea(
+        child: Column(
+          children: [
+            // 1. Top Header (Time, Weather, Forecast)
+            _buildTopHeader(scale),
+            
+            // 2. Title & Filters
+            _buildFilterBar(scale),
+            
+            // 3. Month Grid
+            Expanded(
+              child: MonthView(
+                headerBuilder: (date) {
+                  return const SizedBox.shrink(); // Hide default header
                 },
-                activeColor: const Color(0xFF1B5E20),
+                cellBuilder: (date, events, isToday, isInMonth, hideDays) {
+                  return _buildDateCell(date, events, isToday, isInMonth, scale);
+                },
+                minMonth: DateTime(1990),
+                maxMonth: DateTime(2050),
+                initialMonth: DateTime.now(),
+                cellAspectRatio: 0.8, // Adjust for taller cells
+                onPageChange: (date, pageIndex) {},
+                onCellTap: (events, date) {
+                  // Handle tap
+                },
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-      body: Column(
+    );
+  }
+
+  Widget _buildTopHeader(double scale) {
+    final now = _currentTime;
+    final dateFormat = DateFormat('EEEE MMMM dd, yyyy');
+    final timeFormat = DateFormat('HH:mm');
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 20 * scale, horizontal: 20 * scale),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1B5E20).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFF1B5E20).withOpacity(0.2)),
-            ),
-            child: Row(
+          // Time & Date
+          Expanded(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.calendar_today, color: const Color(0xFF1B5E20)),
-                const SizedBox(width: 10),
                 Text(
-                  _isHijriMode
-                      ? hijriDate.toFormat("DDDD, dd MMMM yyyy")
-                      : "${_selectedDay?.day} / ${_selectedDay?.month} / ${_selectedDay?.year}",
+                  now.weekday == DateTime.tuesday ? "Tuesday" : DateFormat('EEEE').format(now), // Dynamic but mock style
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1B5E20),
+                    fontSize: 16 * scale,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                Text(
+                  dateFormat.format(now),
+                  style: TextStyle(
+                    fontSize: 20 * scale,
+                    color: Colors.grey[600],
+                    fontFamily: 'IBMPlexSansArabic', 
+                  ),
+                ),
+                Text(
+                  timeFormat.format(now),
+                  style: TextStyle(
+                    fontSize: 60 * scale,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.black87,
                   ),
                 ),
               ],
             ),
           ),
-          if (!_isHijriMode)
-            TableCalendar(
-              firstDay: DateTime.utc(2020, 1, 1),
-              lastDay: DateTime.utc(2030, 12, 31),
-              focusedDay: _focusedDay,
-              calendarFormat: _calendarFormat,
-              selectedDayPredicate: (day) {
-                return isSameDay(_selectedDay, day);
-              },
-              onDaySelected: (selectedDay, focusedDay) {
-                if (!isSameDay(_selectedDay, selectedDay)) {
-                  setState(() {
-                    _selectedDay = selectedDay;
-                    _focusedDay = focusedDay;
-                  });
-                }
-              },
-              onFormatChanged: (format) {
-                if (_calendarFormat != format) {
-                  setState(() {
-                    _calendarFormat = format;
-                  });
-                }
-              },
-              onPageChanged: (focusedDay) {
-                _focusedDay = focusedDay;
-              },
-              calendarStyle: CalendarStyle(
-                selectedDecoration: const BoxDecoration(
-                  color: Color(0xFF1B5E20),
-                  shape: BoxShape.circle,
-                ),
-                todayDecoration: BoxDecoration(
-                  color: const Color(0xFF1B5E20).withOpacity(0.5),
-                  shape: BoxShape.circle,
-                ),
+          
+          // Current Weather
+          Expanded(
+            flex: 3,
+            child: Container(
+              padding: EdgeInsets.all(16 * scale),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                  )
+                ],
+                border: Border.all(color: Colors.grey.shade200),
               ),
-              calendarBuilders: CalendarBuilders(
-                markerBuilder: (context, date, events) {
-                  final hDate = HijriCalendar.fromDate(date);
-                  return Positioned(
-                    bottom: 1,
-                    child: Text(
-                      hDate.hDay.toString(),
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            )
-          else
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      hijriDate.toFormat("MMMM yyyy"),
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1B5E20),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      hijriDate.toFormat("dd"),
-                      style: TextStyle(
-                        fontSize: 80,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    Text(
-                      hijriDate.toFormat("DDDD"),
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
+              child: Row(
+                children: [
+                   Column(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       Icon(Icons.cloud, color: Colors.blue, size: 40 * scale),
+                       SizedBox(height: 10 * scale),
+                       Row(
+                         children: [
+                           Icon(Icons.water_drop, size: 14 * scale, color: Colors.blue),
+                           Text(" 77%", style: TextStyle(fontSize: 12 * scale)),
+                         ],
+                       ),
+                       Row(
+                         children: [
+                           Icon(Icons.compress, size: 14 * scale, color: Colors.blue),
+                           Text(" 30.11 inHg", style: TextStyle(fontSize: 12 * scale)),
+                         ],
+                       ),
+                        Row(
+                         children: [
+                           Icon(Icons.wb_sunny_outlined, size: 14 * scale, color: Colors.blue),
+                           Text(" 7:10:07 AM", style: TextStyle(fontSize: 12 * scale)),
+                         ],
+                       ),
+                     ],
+                   ),
+                   const Spacer(),
+                   Column(
+                     crossAxisAlignment: CrossAxisAlignment.end,
+                     children: [
+                       Text(
+                         "75°F",
+                         style: TextStyle(
+                           fontSize: 48 * scale,
+                           fontWeight: FontWeight.w300,
+                         ),
+                       ),
+                       Text("SSE 7 mi/h", style: TextStyle(fontSize: 12 * scale, color: Colors.grey)),
+                       Text("10 mi", style: TextStyle(fontSize: 12 * scale, color: Colors.grey)),
+                       Text("6:02:51 PM", style: TextStyle(fontSize: 12 * scale, color: Colors.grey)),
+                     ],
+                   )
+                ],
               ),
             ),
+          ),
+          
+          // Forecast
+          Expanded(
+            flex: 2,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildForecastItem("Tue", Icons.cloud, "66°", "66°", scale),
+                _buildForecastItem("Wed", Icons.cloud_queue, "81°", "67°", scale),
+                _buildForecastItem("Thu", Icons.wb_sunny, "82°", "67°", scale),
+                _buildForecastItem("Fri", Icons.wb_cloudy, "83°", "68°", scale),
+                _buildForecastItem("Sat", Icons.wb_sunny_outlined, "85°", "67°", scale),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildForecastItem(String day, IconData icon, String high, String low, double scale) {
+    return Column(
+      children: [
+        Text(day, style: TextStyle(fontSize: 12 * scale, color: Colors.grey)),
+        SizedBox(height: 8 * scale),
+        Icon(icon, color: Colors.amber, size: 24 * scale),
+        SizedBox(height: 8 * scale),
+        Text(high, style: TextStyle(fontSize: 12 * scale, fontWeight: FontWeight.bold)),
+        Text(low, style: TextStyle(fontSize: 12 * scale, color: Colors.grey)),
+      ],
+    );
+  }
+
+  Widget _buildFilterBar(double scale) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 10 * scale),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Calendar",
+            style: TextStyle(
+              fontSize: 24 * scale,
+              fontFamily: 'IBMPlexSansArabic',
+              color: Colors.black87,
+            ),
+          ),
+          SizedBox(height: 10 * scale),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildAvatar(const Color(0xFFEF9A9A), scale),
+                _buildAvatar(const Color(0xFFFFCC80), scale),
+                _buildAvatar(const Color(0xFF90CAF9), scale),
+                _buildAvatar(const Color(0xFFCE93D8), scale),
+                _buildAvatar(const Color(0xFFA5D6A7), scale),
+                _buildAvatar(const Color(0xFFF48FB1), scale),
+                
+                SizedBox(width: 10 * scale),
+                _buildFilterPill("Family", Colors.blue, Icons.people, scale),
+                _buildFilterPill("Birthdays", Colors.green, Icons.cake, scale),
+                _buildFilterPill("Holidays", Colors.orange, Icons.shopping_bag, scale),
+                
+                SizedBox(width: 10 * scale),
+                Container(
+                  width: 40 * scale,
+                  height: 40 * scale,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                SizedBox(width: 10 * scale),
+                ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: Icon(Icons.calendar_today, size: 16 * scale),
+                  label: Text("Add Event", style: TextStyle(fontSize: 14 * scale)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF37474F),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 15 * scale),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 10 * scale),
+          // View selector mockup
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12 * scale, vertical: 6 * scale),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.calendar_view_month, size: 16 * scale, color: Colors.black54),
+                SizedBox(width: 8 * scale),
+                Text("Select View\nMonth", style: TextStyle(fontSize: 12 * scale, height: 1.1)),
+                Icon(Icons.keyboard_arrow_down, size: 16 * scale, color: Colors.black54),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAvatar(Color color, double scale) {
+    return Container(
+      margin: EdgeInsets.only(right: 8 * scale),
+      width: 40 * scale,
+      height: 40 * scale,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 2),
+      ),
+      child: Icon(Icons.person, color: Colors.white, size: 20 * scale),
+    );
+  }
+
+  Widget _buildFilterPill(String label, Color color, IconData icon, double scale) {
+    return Container(
+      margin: EdgeInsets.only(right: 8 * scale),
+      padding: EdgeInsets.symmetric(horizontal: 12 * scale, vertical: 8 * scale),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white, size: 16 * scale),
+          SizedBox(width: 4 * scale),
+          Text(label, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12 * scale)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateCell(DateTime date, List<CalendarEventData> events, bool isToday, bool isInMonth, double scale) {
+    if (!isInMonth) return Container(color: Colors.grey.shade50);
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade200),
+        color: Colors.white,
+      ),
+      padding: EdgeInsets.all(4 * scale),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header: Date + Weather
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    date.day.toString(),
+                    style: TextStyle(
+                      fontSize: 24 * scale,
+                      fontWeight: FontWeight.bold,
+                      color: isToday ? Colors.orange : Colors.black87,
+                    ),
+                  ),
+                  if (date.day <= 7) // Show day name for first row
+                    Padding(
+                      padding: EdgeInsets.only(left: 4 * scale),
+                      child: Text(
+                        DateFormat('E').format(date),
+                        style: TextStyle(fontSize: 12 * scale, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                ],
+              ),
+              Row(
+                children: [
+                  Text(
+                    "${65 + (date.day % 15)}°F / ${50 + (date.day % 10)}°F", // Mock temp
+                    style: TextStyle(fontSize: 10 * scale, color: Colors.grey),
+                  ),
+                  SizedBox(width: 4 * scale),
+                  Icon(
+                    date.day % 3 == 0 ? Icons.wb_sunny : (date.day % 3 == 1 ? Icons.cloud : Icons.water_drop),
+                    size: 14 * scale,
+                    color: date.day % 3 == 0 ? Colors.amber : Colors.blueGrey,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          
+          SizedBox(height: 4 * scale),
+          
+          // Events List
+          Expanded(
+            child: ListView.builder(
+              itemCount: events.length,
+              itemBuilder: (context, index) {
+                final event = events[index];
+                return Container(
+                  margin: EdgeInsets.only(bottom: 2 * scale),
+                  padding: EdgeInsets.symmetric(horizontal: 4 * scale, vertical: 2 * scale),
+                  decoration: BoxDecoration(
+                    color: event.color,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (event.endTime != null && event.endTime!.difference(event.startTime!).inHours < 24)
+                      Text(
+                        "${DateFormat('HH:mm').format(event.startTime!)} - ${DateFormat('HH:mm').format(event.endTime!)}",
+                        style: TextStyle(fontSize: 8 * scale, color: Colors.black54),
+                        maxLines: 1,
+                      ),
+                      Text(
+                        event.title,
+                        style: TextStyle(fontSize: 10 * scale, fontWeight: FontWeight.w500),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );

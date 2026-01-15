@@ -2,9 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:calendar_view/calendar_view.dart';
 import 'package:todo_app/l10n/app_localizations.dart';
 import 'providers/todo_provider.dart';
 import 'providers/locale_provider.dart';
+import 'providers/font_size_provider.dart';
 import 'screens/splash_screen.dart';
 
 void main() {
@@ -17,14 +19,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => TodoProvider()),
-        ChangeNotifierProvider(create: (_) => LocaleProvider()),
-      ],
-      child: Consumer<LocaleProvider>(
-        builder: (context, localeProvider, child) {
-          return MaterialApp(
+    return CalendarControllerProvider(
+      controller: EventController(),
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => TodoProvider()),
+          ChangeNotifierProvider(create: (_) => LocaleProvider()),
+          ChangeNotifierProvider(create: (_) => FontSizeProvider()),
+        ],
+        child: Consumer2<LocaleProvider, FontSizeProvider>(
+          builder: (context, localeProvider, fontSizeProvider, child) {
+            return MaterialApp(
             title: 'Nasaq',
             debugShowCheckedModeBanner: false,
             locale: localeProvider.locale,
@@ -43,10 +48,22 @@ class MyApp extends StatelessWidget {
               primarySwatch: Colors.green,
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
               useMaterial3: true,
+              iconTheme: IconThemeData(
+                size: 24.0 * fontSizeProvider.fontScale,
+              ),
             ),
+            builder: (context, child) {
+              return MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: TextScaler.linear(fontSizeProvider.fontScale),
+                ),
+                child: child!,
+              );
+            },
             home: const SplashScreen(),
           );
         },
+      ),
       ),
     );
   }

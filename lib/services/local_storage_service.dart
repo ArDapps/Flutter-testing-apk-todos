@@ -6,6 +6,7 @@ import '../models/todo.dart';
 class LocalStorageService {
   static const String _todosKey = 'todos';
   static const String _onboardingKey = 'has_seen_onboarding';
+  static const String _fontSizeKey = 'font_size_scale';
 
   Future<void> saveTodos(List<Todo> todos) async {
     final prefs = await SharedPreferences.getInstance();
@@ -38,5 +39,15 @@ class LocalStorageService {
   Future<bool> hasSeenOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_onboardingKey) ?? false;
+  }
+
+  Future<void> saveFontSize(double scale) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_fontSizeKey, scale);
+  }
+
+  Future<double> getFontSize() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble(_fontSizeKey) ?? 1.0;
   }
 }

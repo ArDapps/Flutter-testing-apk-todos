@@ -143,6 +143,12 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get language;
 
+  /// No description provided for @fontSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Font Size'**
+  String get fontSize;
+
   /// No description provided for @grocery.
   ///
   /// In en, this message translates to:

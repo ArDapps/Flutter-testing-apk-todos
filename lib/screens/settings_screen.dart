@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app/l10n/app_localizations.dart';
 import '../providers/locale_provider.dart';
+import '../providers/font_size_provider.dart';
 import '../services/local_storage_service.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -49,6 +50,53 @@ class SettingsScreen extends StatelessWidget {
                 const Divider(height: 1),
                 _buildLanguageOption(context, 'العربية', const Locale('ar')),
               ],
+            ),
+          ),
+          const SizedBox(height: 30),
+          Text(
+            AppLocalizations.of(context)!.fontSize,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Consumer<FontSizeProvider>(
+              builder: (context, fontSizeProvider, _) {
+                return Column(
+                  children: [
+                    RadioListTile<double>(
+                      title: const Text('1x'),
+                      value: 1.0,
+                      groupValue: fontSizeProvider.fontScale,
+                      onChanged: (value) => fontSizeProvider.setFontScale(value!),
+                      activeColor: Theme.of(context).primaryColor,
+                    ),
+                    const Divider(height: 1),
+                    RadioListTile<double>(
+                      title: const Text('2x'),
+                      value: 2.0,
+                      groupValue: fontSizeProvider.fontScale,
+                      onChanged: (value) => fontSizeProvider.setFontScale(value!),
+                      activeColor: Theme.of(context).primaryColor,
+                    ),
+                    const Divider(height: 1),
+                    RadioListTile<double>(
+                      title: const Text('3x'),
+                      value: 3.0,
+                      groupValue: fontSizeProvider.fontScale,
+                      onChanged: (value) => fontSizeProvider.setFontScale(value!),
+                      activeColor: Theme.of(context).primaryColor,
+                    ),
+                  ],
+                );
+              },
             ),
           ),
           const SizedBox(height: 30),

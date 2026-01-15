@@ -42,6 +42,9 @@ dependencies:
     sdk: flutter
   table_calendar: ^3.2.0
   hijri: ^3.0.0
+  calendar_view: ^1.4.0
+  confetti: ^0.8.0
+  flutter_tts: ^4.2.5
 
 dev_dependencies:
   flutter_test:

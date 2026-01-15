@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/font_size_provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:todo_app/l10n/app_localizations.dart';
 import '../services/local_storage_service.dart';
@@ -15,17 +17,6 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-
-  void _onNext(int totalItems) {
-    if (_currentPage < totalItems - 1) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    } else {
-      _finishOnboarding();
-    }
-  }
 
   Future<void> _finishOnboarding() async {
     await LocalStorageService().setOnboardingSeen();
@@ -165,6 +156,9 @@ class _OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fontSizeProvider = Provider.of<FontSizeProvider>(context);
+    final scale = fontSizeProvider.fontScale;
+
     return Container(
       padding: const EdgeInsets.all(40),
       color: Colors.white,
@@ -174,7 +168,7 @@ class _OnboardingPage extends StatelessWidget {
           item.imageAsset != null
               ? Image.asset(
                   item.imageAsset!,
-                  height: 150,
+                  height: 150 * scale,
                   fit: BoxFit.contain,
                 )
                   .animate()
@@ -182,7 +176,7 @@ class _OnboardingPage extends StatelessWidget {
                   .scale(delay: 200.ms, duration: 500.ms)
               : Icon(
                   item.icon,
-                  size: 150,
+                  size: 150 * scale,
                   color: item.color,
                 )
                   .animate()

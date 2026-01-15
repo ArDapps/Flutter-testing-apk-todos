@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app/l10n/app_localizations.dart';
 import '../providers/todo_provider.dart';
+import '../providers/font_size_provider.dart';
 import '../widgets/todo_item.dart';
-import '../widgets/skylight_drawer.dart';
 
 class GroceryScreen extends StatelessWidget {
   const GroceryScreen({super.key});
@@ -11,6 +11,8 @@ class GroceryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final fontSizeProvider = Provider.of<FontSizeProvider>(context);
+    final scale = fontSizeProvider.fontScale;
     
     return Scaffold(
       backgroundColor: Colors.white,
@@ -41,7 +43,7 @@ class GroceryScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.shopping_cart_outlined, size: 100, color: Colors.grey.shade300),
+                  Icon(Icons.shopping_cart_outlined, size: 100 * scale, color: Colors.grey.shade300),
                   const SizedBox(height: 20),
                   Text(
                     l10n.noTasks, // Or maybe a grocery specific message if we had one

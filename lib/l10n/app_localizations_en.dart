@@ -33,6 +33,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language => 'Language';
 
   @override
+  String get fontSize => 'Font Size';
+
+  @override
   String get grocery => 'Grocery';
 
   @override

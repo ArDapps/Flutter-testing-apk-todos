@@ -33,6 +33,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get language => 'اللغة';
 
   @override
+  String get fontSize => 'حجم الخط';
+
+  @override
   String get grocery => 'البقالة';
 
   @override

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:todo_app/l10n/app_localizations.dart';
 import 'package:todo_app/screens/calendar_screen.dart';
 import 'package:todo_app/screens/grocery_screen.dart';
 import 'package:todo_app/screens/todo_list_screen.dart';
 import 'package:todo_app/screens/settings_screen.dart';
+import '../providers/font_size_provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -26,6 +28,8 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final isWideScreen = MediaQuery.of(context).orientation == Orientation.landscape;
+    final fontSizeProvider = Provider.of<FontSizeProvider>(context);
+    final scale = fontSizeProvider.fontScale;
 
     return Scaffold(
       body: Row(
@@ -43,7 +47,7 @@ class _MainScreenState extends State<MainScreen> {
               leading: Column(
                 children: [
                   const SizedBox(height: 20),
-                  Image.asset('assets/logo.png', height: 40),
+                  Image.asset('assets/logo.png', height: 40 * scale),
                   const SizedBox(height: 8),
                   Text(
                     l10n.skylight,
@@ -57,8 +61,8 @@ class _MainScreenState extends State<MainScreen> {
                 ],
               ),
               backgroundColor: Colors.white,
-              selectedIconTheme: const IconThemeData(color: Color(0xFF1B5E20), size: 30),
-              unselectedIconTheme: const IconThemeData(color: Colors.grey, size: 24),
+              selectedIconTheme: IconThemeData(color: const Color(0xFF1B5E20), size: 30 * scale),
+              unselectedIconTheme: IconThemeData(color: Colors.grey, size: 24 * scale),
               selectedLabelTextStyle: TextStyle(
                 color: const Color(0xFF1B5E20),
                 fontWeight: FontWeight.bold,
@@ -111,23 +115,23 @@ class _MainScreenState extends State<MainScreen> {
               indicatorColor: const Color(0xFF1B5E20).withOpacity(0.2),
               destinations: [
                 NavigationDestination(
-                  icon: const Icon(Icons.check_circle_outline),
-                  selectedIcon: const Icon(Icons.check_circle, color: Color(0xFF1B5E20)),
+                  icon: Icon(Icons.check_circle_outline, size: 24 * scale),
+                  selectedIcon: Icon(Icons.check_circle, size: 24 * scale, color: const Color(0xFF1B5E20)),
                   label: l10n.todoTitle,
                 ),
                 NavigationDestination(
-                  icon: const Icon(Icons.shopping_cart_outlined),
-                  selectedIcon: const Icon(Icons.shopping_cart, color: Color(0xFF1B5E20)),
+                  icon: Icon(Icons.shopping_cart_outlined, size: 24 * scale),
+                  selectedIcon: Icon(Icons.shopping_cart, size: 24 * scale, color: const Color(0xFF1B5E20)),
                   label: l10n.grocery,
                 ),
                 NavigationDestination(
-                  icon: const Icon(Icons.calendar_today_outlined),
-                  selectedIcon: const Icon(Icons.calendar_today, color: Color(0xFF1B5E20)),
+                  icon: Icon(Icons.calendar_today_outlined, size: 24 * scale),
+                  selectedIcon: Icon(Icons.calendar_today, size: 24 * scale, color: const Color(0xFF1B5E20)),
                   label: l10n.calendar,
                 ),
                 NavigationDestination(
-                  icon: const Icon(Icons.settings_outlined),
-                  selectedIcon: const Icon(Icons.settings, color: Color(0xFF1B5E20)),
+                  icon: Icon(Icons.settings_outlined, size: 24 * scale),
+                  selectedIcon: Icon(Icons.settings, size: 24 * scale, color: const Color(0xFF1B5E20)),
                   label: l10n.settings,
                 ),
               ],
