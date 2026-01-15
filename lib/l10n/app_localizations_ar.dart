@@ -85,4 +85,52 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get hijri => 'هجري';
+
+  @override
+  String get morning => 'صباح';
+
+  @override
+  String get afternoon => 'ظهيرة';
+
+  @override
+  String get evening => 'مساء';
+
+  @override
+  String get chores => 'واجبات منزلية';
+
+  @override
+  String get filter => 'تصفية';
+
+  @override
+  String get today => 'اليوم';
+
+  @override
+  String get assignTo => 'تعيين لـ...';
+
+  @override
+  String get personalTask => 'مهمة شخصية';
+
+  @override
+  String get sharedChore => 'واجب مشترك';
+
+  @override
+  String get cancel => 'إلغاء';
+
+  @override
+  String get add => 'إضافة';
+
+  @override
+  String get rewards => 'مكافآت';
+
+  @override
+  String get meals => 'وجبات';
+
+  @override
+  String get photos => 'صور';
+
+  @override
+  String get lists => 'قوائم';
+
+  @override
+  String get sleep => 'نوم';
 }

@@ -1,35 +1,51 @@
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../models/todo.dart';
+import '../models/profile.dart';
 import '../services/local_storage_service.dart';
 
 class TodoProvider with ChangeNotifier {
   List<Todo> _todos = [];
+  List<Profile> _profiles = [];
   final LocalStorageService _storageService = LocalStorageService();
   bool _isLoading = true;
 
   List<Todo> get todos => _todos;
+  List<Profile> get profiles => _profiles;
   List<Todo> get generalTodos => _todos.where((t) => t.category == 'general').toList();
   List<Todo> get groceries => _todos.where((t) => t.category == 'grocery').toList();
   bool get isLoading => _isLoading;
 
   TodoProvider() {
-    _loadTodos();
+    _loadData();
   }
 
-  Future<void> _loadTodos() async {
+  Future<void> _loadData() async {
     _isLoading = true;
     notifyListeners();
+    
+    _profiles = await _storageService.loadProfiles();
+    if (_profiles.isEmpty) {
+      _profiles = [
+        Profile(id: '1', name: 'Alex', initial: 'A', colorValue: 0xFFEF6C00),
+        Profile(id: '2', name: 'Brian', initial: 'B', colorValue: 0xFF42A5F5),
+        Profile(id: '3', name: 'Elena', initial: 'E', colorValue: 0xFFEF5350),
+        Profile(id: '4', name: 'Frank', initial: 'F', colorValue: 0xFF1565C0),
+      ];
+      await _storageService.saveProfiles(_profiles);
+    }
+
     _todos = await _storageService.loadTodos();
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<void> addTodo(String title, {String category = 'general'}) async {
+  Future<void> addTodo(String title, {String category = 'general', String? profileId}) async {
     final newTodo = Todo(
       id: DateTime.now().toString(),
       title: title,
       category: category,
+      profileId: profileId ?? (category == 'general' && _profiles.isNotEmpty ? _profiles.first.id : null),
       createdAt: DateTime.now(),
     );
     _todos.add(newTodo);

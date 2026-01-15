@@ -28,7 +28,7 @@ class SkylightDrawer extends StatelessWidget {
                 children: [
                   Image.asset(
                     'assets/logo.png',
-                    height: 50,
+                    height: 100,
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 8),

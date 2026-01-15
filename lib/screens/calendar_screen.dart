@@ -130,6 +130,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget build(BuildContext context) {
     final fontSizeProvider = Provider.of<FontSizeProvider>(context);
     final scale = fontSizeProvider.fontScale;
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -137,7 +138,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         child: Column(
           children: [
             // 1. Top Header (Time, Weather, Forecast)
-            _buildTopHeader(scale),
+            _buildTopHeader(scale, isPortrait),
             
             // 2. Title & Filters
             _buildFilterBar(scale),
@@ -154,7 +155,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 minMonth: DateTime(1990),
                 maxMonth: DateTime(2050),
                 initialMonth: DateTime.now(),
-                cellAspectRatio: 0.8, // Adjust for taller cells
+                cellAspectRatio: isPortrait ? 0.6 : 0.8, // Adjust for taller cells
                 onPageChange: (date, pageIndex) {},
                 onCellTap: (events, date) {
                   // Handle tap
@@ -167,129 +168,136 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  Widget _buildTopHeader(double scale) {
+  Widget _buildTopHeader(double scale, bool isPortrait) {
     final now = _currentTime;
     final dateFormat = DateFormat('EEEE MMMM dd, yyyy');
     final timeFormat = DateFormat('HH:mm');
+
+    final timeWidget = Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          now.weekday == DateTime.tuesday ? "Tuesday" : DateFormat('EEEE').format(now), // Dynamic but mock style
+          style: TextStyle(
+            fontSize: 16 * scale,
+            color: Colors.grey[600],
+          ),
+        ),
+        Text(
+          dateFormat.format(now),
+          style: TextStyle(
+            fontSize: 20 * scale,
+            color: Colors.grey[600],
+            fontFamily: 'IBMPlexSansArabic', 
+          ),
+        ),
+        Text(
+          timeFormat.format(now),
+          style: TextStyle(
+            fontSize: 60 * scale,
+            fontWeight: FontWeight.w300,
+            color: Colors.black87,
+          ),
+        ),
+      ],
+    );
+
+    final weatherWidget = Container(
+      padding: EdgeInsets.all(16 * scale),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.1),
+            spreadRadius: 2,
+            blurRadius: 10,
+          )
+        ],
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+           Column(
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children: [
+               Icon(Icons.cloud, color: Colors.blue, size: 40 * scale),
+               SizedBox(height: 10 * scale),
+               Row(
+                 children: [
+                   Icon(Icons.water_drop, size: 14 * scale, color: Colors.blue),
+                   Text(" 77%", style: TextStyle(fontSize: 12 * scale)),
+                 ],
+               ),
+               Row(
+                 children: [
+                   Icon(Icons.compress, size: 14 * scale, color: Colors.blue),
+                   Text(" 30.11 inHg", style: TextStyle(fontSize: 12 * scale)),
+                 ],
+               ),
+                Row(
+                 children: [
+                   Icon(Icons.wb_sunny_outlined, size: 14 * scale, color: Colors.blue),
+                   Text(" 7:10:07 AM", style: TextStyle(fontSize: 12 * scale)),
+                 ],
+               ),
+             ],
+           ),
+           const Spacer(),
+           Column(
+             crossAxisAlignment: CrossAxisAlignment.end,
+             children: [
+               Text(
+                 "75°F",
+                 style: TextStyle(
+                   fontSize: 48 * scale,
+                   fontWeight: FontWeight.w300,
+                 ),
+               ),
+               Text("SSE 7 mi/h", style: TextStyle(fontSize: 12 * scale, color: Colors.grey)),
+               Text("10 mi", style: TextStyle(fontSize: 12 * scale, color: Colors.grey)),
+               Text("6:02:51 PM", style: TextStyle(fontSize: 12 * scale, color: Colors.grey)),
+             ],
+           )
+        ],
+      ),
+    );
+
+    final forecastWidget = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        _buildForecastItem("Tue", Icons.cloud, "66°", "66°", scale),
+        _buildForecastItem("Wed", Icons.cloud_queue, "81°", "67°", scale),
+        _buildForecastItem("Thu", Icons.wb_sunny, "82°", "67°", scale),
+        _buildForecastItem("Fri", Icons.wb_cloudy, "83°", "68°", scale),
+        _buildForecastItem("Sat", Icons.wb_sunny_outlined, "85°", "67°", scale),
+      ],
+    );
+
+    if (isPortrait) {
+      return Container(
+        padding: EdgeInsets.symmetric(vertical: 20 * scale, horizontal: 20 * scale),
+        child: Column(
+          children: [
+            timeWidget,
+            SizedBox(height: 16 * scale),
+            weatherWidget,
+            SizedBox(height: 16 * scale),
+            forecastWidget,
+          ],
+        ),
+      );
+    }
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 20 * scale, horizontal: 20 * scale),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Time & Date
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  now.weekday == DateTime.tuesday ? "Tuesday" : DateFormat('EEEE').format(now), // Dynamic but mock style
-                  style: TextStyle(
-                    fontSize: 16 * scale,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                Text(
-                  dateFormat.format(now),
-                  style: TextStyle(
-                    fontSize: 20 * scale,
-                    color: Colors.grey[600],
-                    fontFamily: 'IBMPlexSansArabic', 
-                  ),
-                ),
-                Text(
-                  timeFormat.format(now),
-                  style: TextStyle(
-                    fontSize: 60 * scale,
-                    fontWeight: FontWeight.w300,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          // Current Weather
-          Expanded(
-            flex: 3,
-            child: Container(
-              padding: EdgeInsets.all(16 * scale),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withValues(alpha: 0.1),
-                    spreadRadius: 2,
-                    blurRadius: 10,
-                  )
-                ],
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: Row(
-                children: [
-                   Column(
-                     crossAxisAlignment: CrossAxisAlignment.start,
-                     children: [
-                       Icon(Icons.cloud, color: Colors.blue, size: 40 * scale),
-                       SizedBox(height: 10 * scale),
-                       Row(
-                         children: [
-                           Icon(Icons.water_drop, size: 14 * scale, color: Colors.blue),
-                           Text(" 77%", style: TextStyle(fontSize: 12 * scale)),
-                         ],
-                       ),
-                       Row(
-                         children: [
-                           Icon(Icons.compress, size: 14 * scale, color: Colors.blue),
-                           Text(" 30.11 inHg", style: TextStyle(fontSize: 12 * scale)),
-                         ],
-                       ),
-                        Row(
-                         children: [
-                           Icon(Icons.wb_sunny_outlined, size: 14 * scale, color: Colors.blue),
-                           Text(" 7:10:07 AM", style: TextStyle(fontSize: 12 * scale)),
-                         ],
-                       ),
-                     ],
-                   ),
-                   const Spacer(),
-                   Column(
-                     crossAxisAlignment: CrossAxisAlignment.end,
-                     children: [
-                       Text(
-                         "75°F",
-                         style: TextStyle(
-                           fontSize: 48 * scale,
-                           fontWeight: FontWeight.w300,
-                         ),
-                       ),
-                       Text("SSE 7 mi/h", style: TextStyle(fontSize: 12 * scale, color: Colors.grey)),
-                       Text("10 mi", style: TextStyle(fontSize: 12 * scale, color: Colors.grey)),
-                       Text("6:02:51 PM", style: TextStyle(fontSize: 12 * scale, color: Colors.grey)),
-                     ],
-                   )
-                ],
-              ),
-            ),
-          ),
-          
-          // Forecast
-          Expanded(
-            flex: 2,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildForecastItem("Tue", Icons.cloud, "66°", "66°", scale),
-                _buildForecastItem("Wed", Icons.cloud_queue, "81°", "67°", scale),
-                _buildForecastItem("Thu", Icons.wb_sunny, "82°", "67°", scale),
-                _buildForecastItem("Fri", Icons.wb_cloudy, "83°", "68°", scale),
-                _buildForecastItem("Sat", Icons.wb_sunny_outlined, "85°", "67°", scale),
-              ],
-            ),
-          )
+          Expanded(flex: 2, child: timeWidget),
+          Expanded(flex: 3, child: weatherWidget),
+          Expanded(flex: 2, child: forecastWidget),
         ],
       ),
     );

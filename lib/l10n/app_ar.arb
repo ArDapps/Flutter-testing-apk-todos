@@ -24,5 +24,21 @@
   "resetOnboarding": "إعادة تعيين الشاشة الترحيبية",
   "resetOnboardingSuccess": "تمت إعادة التعيين! أعد تشغيل التطبيق.",
   "gregorian": "ميلادي",
-  "hijri": "هجري"
+  "hijri": "هجري",
+  "morning": "صباح",
+  "afternoon": "ظهيرة",
+  "evening": "مساء",
+  "chores": "واجبات منزلية",
+  "filter": "تصفية",
+  "today": "اليوم",
+  "assignTo": "تعيين لـ...",
+  "personalTask": "مهمة شخصية",
+  "sharedChore": "واجب مشترك",
+  "cancel": "إلغاء",
+  "add": "إضافة",
+  "rewards": "مكافآت",
+  "meals": "وجبات",
+  "photos": "صور",
+  "lists": "قوائم",
+  "sleep": "نوم"
 }

@@ -2,9 +2,11 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/todo.dart';
+import '../models/profile.dart';
 
 class LocalStorageService {
   static const String _todosKey = 'todos';
+  static const String _profilesKey = 'profiles';
   static const String _onboardingKey = 'has_seen_onboarding';
   static const String _fontSizeKey = 'font_size_scale';
 
@@ -24,6 +26,24 @@ class LocalStorageService {
     }
     final List<dynamic> decodedData = json.decode(encodedData);
     return decodedData.map((item) => Todo.fromJson(item)).toList();
+  }
+
+  Future<void> saveProfiles(List<Profile> profiles) async {
+    final prefs = await SharedPreferences.getInstance();
+    final String encodedData = json.encode(
+      profiles.map((profile) => profile.toJson()).toList(),
+    );
+    await prefs.setString(_profilesKey, encodedData);
+  }
+
+  Future<List<Profile>> loadProfiles() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? encodedData = prefs.getString(_profilesKey);
+    if (encodedData == null) {
+      return [];
+    }
+    final List<dynamic> decodedData = json.decode(encodedData);
+    return decodedData.map((item) => Profile.fromJson(item)).toList();
   }
 
   Future<void> setOnboardingSeen() async {

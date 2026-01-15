@@ -23,11 +23,11 @@ class TodoItem extends StatelessWidget {
         margin: EdgeInsets.symmetric(vertical: 6 * scale),
         decoration: BoxDecoration(
           color: Colors.red.shade100,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(24),
         ),
         alignment: Alignment.centerRight,
-        padding: EdgeInsets.only(right: 20 * scale),
-        child: Icon(Icons.delete, color: Colors.red, size: 24 * scale),
+        padding: EdgeInsets.only(right: 24 * scale),
+        child: Icon(Icons.delete, color: Colors.red, size: 28 * scale),
       ),
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
@@ -36,26 +36,37 @@ class TodoItem extends StatelessWidget {
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 6 * scale),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          color: todo.isCompleted ? const Color(0xFFE8F5E9) : Colors.white, // Green tint when done
+          borderRadius: BorderRadius.circular(24), // More rounded (no square)
+          border: Border.all(
+              color: todo.isCompleted ? Colors.green.withValues(alpha: 0.5) : Colors.grey.shade200),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withValues(alpha: 0.05),
-              blurRadius: 5,
-              offset: const Offset(0, 2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: ListTile(
-          contentPadding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 4 * scale),
+          onTap: () {
+            // Click card to toggle
+            final newValue = !todo.isCompleted;
+            Provider.of<TodoProvider>(context, listen: false).toggleTodoStatus(todo.id);
+            if (onStatusChanged != null) {
+              onStatusChanged!(newValue);
+            }
+          },
+          contentPadding: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 8 * scale),
           leading: Transform.scale(
             scale: 1.2 * scale,
             child: Checkbox(
               shape: const CircleBorder(),
               value: todo.isCompleted,
-              activeColor: const Color(0xFF37474F), // Match button color
-              side: BorderSide(color: Colors.grey.shade400, width: 2),
+              activeColor: Colors.green, // Green check
+              checkColor: Colors.white,
+              side: BorderSide(
+                  color: todo.isCompleted ? Colors.green : Colors.grey.shade400, width: 2),
               onChanged: (value) {
                 Provider.of<TodoProvider>(context, listen: false)
                     .toggleTodoStatus(todo.id);
@@ -72,12 +83,12 @@ class TodoItem extends StatelessWidget {
               decoration: todo.isCompleted
                   ? TextDecoration.lineThrough
                   : TextDecoration.none,
-              color: todo.isCompleted ? Colors.grey : Colors.black87,
-              fontWeight: todo.isCompleted ? FontWeight.normal : FontWeight.w500,
+              color: todo.isCompleted ? Colors.green.shade800 : Colors.black87,
+              fontWeight: todo.isCompleted ? FontWeight.normal : FontWeight.w600,
             ),
           ),
           trailing: todo.isCompleted
-              ? null
+              ? const Icon(Icons.emoji_events, color: Colors.amber) // Win trophy
               : Container(
                   width: 12 * scale,
                   height: 12 * scale,

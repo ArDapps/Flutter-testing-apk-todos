@@ -24,5 +24,21 @@
   "resetOnboarding": "Reset Onboarding",
   "resetOnboardingSuccess": "Onboarding reset! Restart app to see it.",
   "gregorian": "Gregorian",
-  "hijri": "Hijri"
+  "hijri": "Hijri",
+  "morning": "Morning",
+  "afternoon": "Afternoon",
+  "evening": "Evening",
+  "chores": "Chores",
+  "filter": "Filter",
+  "today": "Today",
+  "assignTo": "Assign to...",
+  "personalTask": "Personal Task",
+  "sharedChore": "Shared Chore",
+  "cancel": "Cancel",
+  "add": "Add",
+  "rewards": "Rewards",
+  "meals": "Meals",
+  "photos": "Photos",
+  "lists": "Lists",
+  "sleep": "Sleep"
 }

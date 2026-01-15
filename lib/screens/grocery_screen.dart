@@ -1,12 +1,95 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app/l10n/app_localizations.dart';
+import 'package:confetti/confetti.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'dart:math';
 import '../providers/todo_provider.dart';
 import '../providers/font_size_provider.dart';
 import '../widgets/todo_item.dart';
 
-class GroceryScreen extends StatelessWidget {
+class GroceryScreen extends StatefulWidget {
   const GroceryScreen({super.key});
+
+  @override
+  State<GroceryScreen> createState() => _GroceryScreenState();
+}
+
+class _GroceryScreenState extends State<GroceryScreen> {
+  late ConfettiController _confettiController;
+  late FlutterTts _flutterTts;
+  late AudioPlayer _audioPlayer;
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 2));
+    _audioPlayer = AudioPlayer();
+    _initTts();
+  }
+
+  Future<void> _initTts() async {
+    _flutterTts = FlutterTts();
+    await _flutterTts.setVolume(1.0);
+    await _flutterTts.setSpeechRate(0.5);
+    await _flutterTts.setPitch(1.0);
+    
+    var isLanguageAvailable = await _flutterTts.isLanguageAvailable("en-US");
+    if (isLanguageAvailable) {
+        await _flutterTts.setLanguage("en-US");
+    }
+    
+    // Configure audio session for playback even in silent mode (iOS)
+    await _flutterTts.setIosAudioCategory(
+      IosTextToSpeechAudioCategory.playback,
+      [
+        IosTextToSpeechAudioCategoryOptions.defaultToSpeaker,
+        IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+        IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+      ],
+    );
+  }
+
+  Path _drawStar(Size size) {
+    // Method to draw a star
+    double degToRad(double deg) => deg * (pi / 180.0);
+
+    const numberOfPoints = 5;
+    final halfWidth = size.width / 2;
+    final externalRadius = halfWidth;
+    final internalRadius = halfWidth / 2.5;
+    final degreesPerStep = degToRad(360 / numberOfPoints);
+    final halfDegreesPerStep = degreesPerStep / 2;
+    final path = Path();
+    final fullAngle = degToRad(360);
+    path.moveTo(size.width, halfWidth);
+
+    for (double step = 0; step < fullAngle; step += degreesPerStep) {
+      path.lineTo(halfWidth + externalRadius * cos(step),
+          halfWidth + externalRadius * sin(step));
+      path.lineTo(halfWidth + internalRadius * cos(step + halfDegreesPerStep),
+          halfWidth + internalRadius * sin(step + halfDegreesPerStep));
+    }
+    path.close();
+    return path;
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    _audioPlayer.dispose();
+    _flutterTts.stop();
+    super.dispose();
+  }
+
+  void _onTaskCompleted(bool? isCompleted) {
+    if (isCompleted == true) {
+      _confettiController.play();
+      _audioPlayer.play(AssetSource('sounds/clapping.mp3'));
+      _flutterTts.speak("Great job!");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,60 +99,90 @@ class GroceryScreen extends StatelessWidget {
     
     return Scaffold(
       backgroundColor: Colors.white,
-      // drawer: const SkylightDrawer(), // Removed drawer
       appBar: AppBar(
         title: Text(
           l10n.grocery,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black87,
-            fontSize: 24,
+            fontSize: 24 * scale,
           ),
         ),
         centerTitle: false,
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black87),
-        automaticallyImplyLeading: false, // Don't show back button or drawer icon
+        automaticallyImplyLeading: false,
       ),
-      body: Consumer<TodoProvider>(
-        builder: (context, provider, child) {
-          if (provider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: Stack(
+        children: [
+          Consumer<TodoProvider>(
+            builder: (context, provider, child) {
+              if (provider.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          if (provider.groceries.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.shopping_cart_outlined, size: 100 * scale, color: Colors.grey.shade300),
-                  const SizedBox(height: 20),
-                  Text(
-                    l10n.noTasks, // Or maybe a grocery specific message if we had one
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.grey.shade500,
-                    ),
+              if (provider.groceries.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.shopping_cart_outlined, size: 100 * scale, color: Colors.grey.shade300),
+                      const SizedBox(height: 20),
+                      Text(
+                        l10n.noTasks,
+                        style: TextStyle(
+                          fontSize: 18 * scale,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            );
-          }
+                );
+              }
 
-          return ListView.builder(
-            padding: const EdgeInsets.only(top: 16, bottom: 80),
-            itemCount: provider.groceries.length,
-            itemBuilder: (context, index) {
-              return TodoItem(todo: provider.groceries[index]);
+              return ListView.builder(
+                padding: const EdgeInsets.only(top: 16, bottom: 80, left: 20, right: 20),
+                itemCount: provider.groceries.length,
+                itemBuilder: (context, index) {
+                  return TodoItem(
+                    todo: provider.groceries[index],
+                    onStatusChanged: _onTaskCompleted,
+                  );
+                },
+              );
             },
-          );
-        },
+          ),
+          
+          // Confetti Widget
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirectionality: BlastDirectionality.explosive,
+              shouldLoop: false,
+              colors: const [
+                Colors.green,
+                Colors.blue,
+                Colors.pink,
+                Colors.orange,
+                Colors.purple,
+                Colors.yellow,
+              ],
+              createParticlePath: _drawStar,
+              emissionFrequency: 0.05,
+              numberOfParticles: 150,
+              gravity: 0.1,
+              minBlastForce: 60,
+              maxBlastForce: 120,
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddGroceryDialog(context),
         backgroundColor: const Color(0xFF1B5E20),
-        child: const Icon(Icons.add,color: Colors.white,),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -77,6 +190,8 @@ class GroceryScreen extends StatelessWidget {
   void _showAddGroceryDialog(BuildContext context) {
     final TextEditingController controller = TextEditingController();
     final l10n = AppLocalizations.of(context)!;
+    final fontSizeProvider = Provider.of<FontSizeProvider>(context, listen: false);
+    final scale = fontSizeProvider.fontScale;
 
     showModalBottomSheet(
       context: context,
@@ -99,12 +214,13 @@ class GroceryScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                l10n.addNewTask, // "Add New Task" - we can reuse this
+                l10n.addNewTask,
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 20 * scale,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
               TextField(
@@ -139,7 +255,7 @@ class GroceryScreen extends StatelessWidget {
                 child: Text(
                   l10n.addTask,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16 * scale,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:todo_app/l10n/app_localizations.dart';
 import 'package:todo_app/screens/calendar_screen.dart';
 import 'package:todo_app/screens/grocery_screen.dart';
-import 'package:todo_app/screens/todo_list_screen.dart';
+import 'package:todo_app/screens/dashboard_screen.dart';
 import 'package:todo_app/screens/settings_screen.dart';
 import '../providers/font_size_provider.dart';
 
@@ -18,9 +18,9 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    const TodoListScreen(),
-    const GroceryScreen(),
+    const DashboardScreen(),
     const CalendarScreen(),
+    const GroceryScreen(),
     const SettingsScreen(),
   ];
 
@@ -36,6 +36,7 @@ class _MainScreenState extends State<MainScreen> {
         children: [
           if (isWideScreen)
             NavigationRail(
+              minWidth: 110 * scale,
               selectedIndex: _selectedIndex,
               onDestinationSelected: (int index) {
                 setState(() {
@@ -47,7 +48,7 @@ class _MainScreenState extends State<MainScreen> {
               leading: Column(
                 children: [
                   const SizedBox(height: 20),
-                  Image.asset('assets/logo.png', height: 40 * scale),
+                  Image.asset('assets/logo.png', height: 80 * scale),
                   const SizedBox(height: 8),
                   Text(
                     l10n.skylight,
@@ -79,14 +80,14 @@ class _MainScreenState extends State<MainScreen> {
                   label: Text(l10n.todoTitle),
                 ),
                 NavigationRailDestination(
-                  icon: const Icon(Icons.shopping_cart_outlined),
-                  selectedIcon: const Icon(Icons.shopping_cart),
-                  label: Text(l10n.grocery),
-                ),
-                NavigationRailDestination(
                   icon: const Icon(Icons.calendar_today_outlined),
                   selectedIcon: const Icon(Icons.calendar_today),
                   label: Text(l10n.calendar),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.list_alt_outlined),
+                  selectedIcon: const Icon(Icons.list_alt),
+                  label: Text(l10n.lists),
                 ),
                 NavigationRailDestination(
                   icon: const Icon(Icons.settings_outlined),
@@ -105,29 +106,43 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: isWideScreen
           ? null
           : NavigationBar(
-              selectedIndex: _selectedIndex,
+              selectedIndex: _selectedIndex == 0
+                  ? 0
+                  : (_selectedIndex == 1
+                      ? 1
+                      : (_selectedIndex == 5
+                          ? 2
+                          : (_selectedIndex == 7 ? 3 : 0))),
               onDestinationSelected: (int index) {
                 setState(() {
-                  _selectedIndex = index;
+                  if (index == 0) {
+                    _selectedIndex = 0;
+                  } else if (index == 1) {
+                    _selectedIndex = 1;
+                  } else if (index == 2) {
+                    _selectedIndex = 5;
+                  } else if (index == 3) {
+                    _selectedIndex = 7;
+                  }
                 });
               },
               backgroundColor: Colors.white,
-              indicatorColor: const Color(0xFF1B5E20).withOpacity(0.2),
+              indicatorColor: const Color(0xFF1B5E20).withValues(alpha: 0.2),
               destinations: [
+                NavigationDestination(
+                  icon: Icon(Icons.calendar_today_outlined, size: 24 * scale),
+                  selectedIcon: Icon(Icons.calendar_today, size: 24 * scale, color: const Color(0xFF1B5E20)),
+                  label: l10n.calendar,
+                ),
                 NavigationDestination(
                   icon: Icon(Icons.check_circle_outline, size: 24 * scale),
                   selectedIcon: Icon(Icons.check_circle, size: 24 * scale, color: const Color(0xFF1B5E20)),
                   label: l10n.todoTitle,
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.shopping_cart_outlined, size: 24 * scale),
-                  selectedIcon: Icon(Icons.shopping_cart, size: 24 * scale, color: const Color(0xFF1B5E20)),
-                  label: l10n.grocery,
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.calendar_today_outlined, size: 24 * scale),
-                  selectedIcon: Icon(Icons.calendar_today, size: 24 * scale, color: const Color(0xFF1B5E20)),
-                  label: l10n.calendar,
+                  icon: Icon(Icons.list_alt, size: 24 * scale),
+                  selectedIcon: Icon(Icons.list, size: 24 * scale, color: const Color(0xFF1B5E20)),
+                  label: l10n.lists,
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.settings_outlined, size: 24 * scale),

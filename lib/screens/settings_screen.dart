@@ -69,32 +69,30 @@ class SettingsScreen extends StatelessWidget {
             ),
             child: Consumer<FontSizeProvider>(
               builder: (context, fontSizeProvider, _) {
-                return Column(
-                  children: [
-                    RadioListTile<double>(
-                      title: const Text('1x'),
-                      value: 1.0,
-                      groupValue: fontSizeProvider.fontScale,
-                      onChanged: (value) => fontSizeProvider.setFontScale(value!),
-                      activeColor: Theme.of(context).primaryColor,
-                    ),
-                    const Divider(height: 1),
-                    RadioListTile<double>(
-                      title: const Text('2x'),
-                      value: 2.0,
-                      groupValue: fontSizeProvider.fontScale,
-                      onChanged: (value) => fontSizeProvider.setFontScale(value!),
-                      activeColor: Theme.of(context).primaryColor,
-                    ),
-                    const Divider(height: 1),
-                    RadioListTile<double>(
-                      title: const Text('3x'),
-                      value: 3.0,
-                      groupValue: fontSizeProvider.fontScale,
-                      onChanged: (value) => fontSizeProvider.setFontScale(value!),
-                      activeColor: Theme.of(context).primaryColor,
-                    ),
-                  ],
+                return RadioGroup<double>(
+                  groupValue: fontSizeProvider.fontScale,
+                  onChanged: (value) => fontSizeProvider.setFontScale(value!),
+                  child: Column(
+                    children: [
+                      RadioListTile<double>(
+                        title: const Text('1x'),
+                        value: 1.0,
+                        activeColor: Theme.of(context).primaryColor,
+                      ),
+                      const Divider(height: 1),
+                      RadioListTile<double>(
+                        title: const Text('2x'),
+                        value: 2.0,
+                        activeColor: Theme.of(context).primaryColor,
+                      ),
+                      const Divider(height: 1),
+                      RadioListTile<double>(
+                        title: const Text('3x'),
+                        value: 3.0,
+                        activeColor: Theme.of(context).primaryColor,
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
