@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:intl/intl.dart';
+import 'package:hijri/hijri_calendar.dart';
 import '../providers/font_size_provider.dart';
 
 class CalendarScreen extends StatefulWidget {
@@ -172,6 +173,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final now = _currentTime;
     final dateFormat = DateFormat('EEEE MMMM dd, yyyy');
     final timeFormat = DateFormat('HH:mm');
+    
+    final hijriDate = HijriCalendar.fromDate(now);
+    final hijriStr = '${hijriDate.hDay} ${hijriDate.longMonthName} ${hijriDate.hYear}';
 
     final timeWidget = Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -189,6 +193,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
           style: TextStyle(
             fontSize: 20 * scale,
             color: Colors.grey[600],
+            fontFamily: 'IBMPlexSansArabic', 
+          ),
+        ),
+        Text(
+          hijriStr,
+          style: TextStyle(
+            fontSize: 18 * scale,
+            color: const Color(0xFF1B5E20),
+            fontWeight: FontWeight.w600,
             fontFamily: 'IBMPlexSansArabic', 
           ),
         ),
