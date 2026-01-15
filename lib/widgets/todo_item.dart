@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/todo.dart';
 import '../providers/todo_provider.dart';
@@ -34,7 +33,7 @@ class TodoItem extends StatelessWidget {
               child: Checkbox(
                 shape: const CircleBorder(),
                 value: todo.isCompleted,
-                activeColor: const Color(0xFF1B5E20),
+                activeColor: Colors.white,
                 side: BorderSide(color: Colors.grey.shade400, width: 2),
                 onChanged: (value) {
                   Provider.of<TodoProvider>(context, listen: false)
@@ -44,7 +43,7 @@ class TodoItem extends StatelessWidget {
             ),
             title: Text(
               todo.title,
-              style: GoogleFonts.poppins(
+              style: TextStyle(
                 fontSize: 16,
                 decoration: todo.isCompleted
                     ? TextDecoration.lineThrough

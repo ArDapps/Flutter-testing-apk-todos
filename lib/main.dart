@@ -5,21 +5,15 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:todo_app/l10n/app_localizations.dart';
 import 'providers/todo_provider.dart';
 import 'providers/locale_provider.dart';
-import 'screens/onboarding_screen.dart';
-import 'screens/todo_list_screen.dart';
-import 'services/local_storage_service.dart';
+import 'screens/splash_screen.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  final hasSeenOnboarding = await LocalStorageService().hasSeenOnboarding();
-  
-  runApp(MyApp(hasSeenOnboarding: hasSeenOnboarding));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final bool hasSeenOnboarding;
-
-  const MyApp({super.key, required this.hasSeenOnboarding});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -45,11 +39,12 @@ class MyApp extends StatelessWidget {
               Locale('ar'),
             ],
             theme: ThemeData(
+              fontFamily: 'IBMPlexSansArabic',
               primarySwatch: Colors.green,
-              colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1B5E20)),
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
               useMaterial3: true,
             ),
-            home: hasSeenOnboarding ? const TodoListScreen() : const OnboardingScreen(),
+            home: const SplashScreen(),
           );
         },
       ),

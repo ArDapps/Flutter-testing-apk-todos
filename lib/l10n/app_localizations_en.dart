@@ -76,4 +76,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resetOnboardingSuccess => 'Onboarding reset! Restart app to see it.';
+
+  @override
+  String get gregorian => 'Gregorian';
+
+  @override
+  String get hijri => 'Hijri';
 }

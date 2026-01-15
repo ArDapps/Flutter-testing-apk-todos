@@ -1,7 +1,8 @@
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:todo_app/l10n/app_localizations.dart';
+import '../screens/calendar_screen.dart';
+import '../screens/grocery_screen.dart';
 import '../screens/settings_screen.dart';
 
 class SkylightDrawer extends StatelessWidget {
@@ -33,7 +34,7 @@ class SkylightDrawer extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     l10n.skylight,
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: const Color(0xFF1B5E20),
@@ -42,7 +43,7 @@ class SkylightDrawer extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     l10n.organizeDay,
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey.shade600,
                     ),
@@ -51,13 +52,22 @@ class SkylightDrawer extends StatelessWidget {
               ),
             ),
             _buildDrawerItem(context, Icons.check_circle_outline, l10n.todoTitle, true, () {
-               Navigator.pop(context); // Already on To Do
+               Navigator.pop(context);
+               Navigator.popUntil(context, (route) => route.isFirst);
             }),
             _buildDrawerItem(context, Icons.shopping_cart_outlined, l10n.grocery, false, () {
                Navigator.pop(context);
+               Navigator.push(
+                 context,
+                 MaterialPageRoute(builder: (context) => const GroceryScreen()),
+               );
             }),
             _buildDrawerItem(context, Icons.calendar_today, l10n.calendar, false, () {
                Navigator.pop(context);
+               Navigator.push(
+                 context,
+                 MaterialPageRoute(builder: (context) => const CalendarScreen()),
+               );
             }),
             const Divider(),
             _buildDrawerItem(context, Icons.settings_outlined, l10n.settings, false, () {
@@ -81,7 +91,7 @@ class SkylightDrawer extends StatelessWidget {
       ),
       title: Text(
         title,
-        style: GoogleFonts.poppins(
+        style: TextStyle(
           fontSize: 16,
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           color: isSelected ? const Color(0xFF1B5E20) : Colors.black87,

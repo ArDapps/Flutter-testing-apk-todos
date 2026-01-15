@@ -232,6 +232,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Onboarding reset! Restart app to see it.'**
   String get resetOnboardingSuccess;
+
+  /// No description provided for @gregorian.
+  ///
+  /// In en, this message translates to:
+  /// **'Gregorian'**
+  String get gregorian;
+
+  /// No description provided for @hijri.
+  ///
+  /// In en, this message translates to:
+  /// **'Hijri'**
+  String get hijri;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

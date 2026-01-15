@@ -9,6 +9,8 @@ class TodoProvider with ChangeNotifier {
   bool _isLoading = true;
 
   List<Todo> get todos => _todos;
+  List<Todo> get generalTodos => _todos.where((t) => t.category == 'general').toList();
+  List<Todo> get groceries => _todos.where((t) => t.category == 'grocery').toList();
   bool get isLoading => _isLoading;
 
   TodoProvider() {
@@ -23,10 +25,11 @@ class TodoProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addTodo(String title) async {
+  Future<void> addTodo(String title, {String category = 'general'}) async {
     final newTodo = Todo(
       id: DateTime.now().toString(),
       title: title,
+      category: category,
       createdAt: DateTime.now(),
     );
     _todos.add(newTodo);

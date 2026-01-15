@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app/l10n/app_localizations.dart';
@@ -6,8 +5,8 @@ import '../providers/todo_provider.dart';
 import '../widgets/todo_item.dart';
 import '../widgets/skylight_drawer.dart';
 
-class TodoListScreen extends StatelessWidget {
-  const TodoListScreen({super.key});
+class GroceryScreen extends StatelessWidget {
+  const GroceryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +17,7 @@ class TodoListScreen extends StatelessWidget {
       // drawer: const SkylightDrawer(), // Removed drawer
       appBar: AppBar(
         title: Text(
-          l10n.todoTitle,
+          l10n.grocery,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black87,
@@ -37,15 +36,15 @@ class TodoListScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (provider.generalTodos.isEmpty) {
+          if (provider.groceries.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.task_alt, size: 100, color: Colors.grey.shade300),
+                  Icon(Icons.shopping_cart_outlined, size: 100, color: Colors.grey.shade300),
                   const SizedBox(height: 20),
                   Text(
-                    l10n.noTasks,
+                    l10n.noTasks, // Or maybe a grocery specific message if we had one
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.grey.shade500,
@@ -58,22 +57,22 @@ class TodoListScreen extends StatelessWidget {
 
           return ListView.builder(
             padding: const EdgeInsets.only(top: 16, bottom: 80),
-            itemCount: provider.generalTodos.length,
+            itemCount: provider.groceries.length,
             itemBuilder: (context, index) {
-              return TodoItem(todo: provider.generalTodos[index]);
+              return TodoItem(todo: provider.groceries[index]);
             },
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddTodoDialog(context),
+        onPressed: () => _showAddGroceryDialog(context),
         backgroundColor: const Color(0xFF1B5E20),
         child: const Icon(Icons.add,color: Colors.white,),
       ),
     );
   }
 
-  void _showAddTodoDialog(BuildContext context) {
+  void _showAddGroceryDialog(BuildContext context) {
     final TextEditingController controller = TextEditingController();
     final l10n = AppLocalizations.of(context)!;
 
@@ -98,14 +97,14 @@ class TodoListScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                l10n.addNewTask,
+                l10n.addNewTask, // "Add New Task" - we can reuse this
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
-                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               TextField(
                 controller: controller,
                 autofocus: true,
@@ -113,9 +112,10 @@ class TodoListScreen extends StatelessWidget {
                   hintText: l10n.taskHint,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
                   ),
                   filled: true,
-                  fillColor: Colors.grey.shade50,
+                  fillColor: Colors.grey.shade100,
                 ),
               ),
               const SizedBox(height: 20),
@@ -123,13 +123,13 @@ class TodoListScreen extends StatelessWidget {
                 onPressed: () {
                   if (controller.text.isNotEmpty) {
                     Provider.of<TodoProvider>(context, listen: false)
-                        .addTodo(controller.text);
+                        .addTodo(controller.text, category: 'grocery');
                     Navigator.pop(context);
                   }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1B5E20),
-                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -137,8 +137,9 @@ class TodoListScreen extends StatelessWidget {
                 child: Text(
                   l10n.addTask,
                   style: TextStyle(
-                    color: Colors.white,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
               ),

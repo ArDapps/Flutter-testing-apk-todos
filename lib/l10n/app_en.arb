@@ -22,5 +22,7 @@
   "getStarted": "Get Started",
   "delete": "Delete",
   "resetOnboarding": "Reset Onboarding",
-  "resetOnboardingSuccess": "Onboarding reset! Restart app to see it."
+  "resetOnboardingSuccess": "Onboarding reset! Restart app to see it.",
+  "gregorian": "Gregorian",
+  "hijri": "Hijri"
 }

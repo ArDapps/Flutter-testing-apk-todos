@@ -76,4 +76,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get resetOnboardingSuccess => 'تمت إعادة التعيين! أعد تشغيل التطبيق.';
+
+  @override
+  String get gregorian => 'ميلادي';
+
+  @override
+  String get hijri => 'هجري';
 }

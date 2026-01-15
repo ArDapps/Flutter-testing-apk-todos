@@ -1,10 +1,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:todo_app/l10n/app_localizations.dart';
 import '../services/local_storage_service.dart';
-import 'todo_list_screen.dart';
+import 'package:todo_app/screens/main_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -32,7 +31,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     await LocalStorageService().setOnboardingSeen();
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const TodoListScreen()),
+      MaterialPageRoute(builder: (_) => const MainScreen()),
     );
   }
 
@@ -132,7 +131,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
             child: Text(
               _currentPage == items.length - 1 ? l10n.getStarted : l10n.next,
-              style: GoogleFonts.poppins(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -192,7 +191,7 @@ class _OnboardingPage extends StatelessWidget {
           const SizedBox(height: 50),
           Text(
             item.title,
-            style: GoogleFonts.poppins(
+            style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
@@ -202,7 +201,7 @@ class _OnboardingPage extends StatelessWidget {
           const SizedBox(height: 20),
           Text(
             item.description,
-            style: GoogleFonts.poppins(
+            style: TextStyle(
               fontSize: 16,
               color: Colors.grey.shade600,
             ),
