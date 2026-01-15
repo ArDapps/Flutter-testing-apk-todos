@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:hijri/hijri_calendar.dart';
 import '../providers/font_size_provider.dart';
 
+enum CalendarViewType { month, week, day }
+
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
 
@@ -17,6 +19,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   // Timer for updating the clock
   Timer? _timer;
   DateTime _currentTime = DateTime.now();
+  CalendarViewType _currentViewType = CalendarViewType.month;
+  DateTime _displayMonth = DateTime.now();
 
   @override
   void initState() {
@@ -144,27 +148,176 @@ class _CalendarScreenState extends State<CalendarScreen> {
             // 2. Title & Filters
             _buildFilterBar(scale),
             
-            // 3. Month Grid
+            if (_currentViewType == CalendarViewType.month)
+              _buildWeekDaysHeader(scale),
+            
+            // 3. Calendar View
             Expanded(
-              child: MonthView(
-                headerBuilder: (date) {
-                  return const SizedBox.shrink(); // Hide default header
-                },
-                cellBuilder: (date, events, isToday, isInMonth, hideDays) {
-                  return _buildDateCell(date, events, isToday, isInMonth, scale);
-                },
-                minMonth: DateTime(1990),
-                maxMonth: DateTime(2050),
-                initialMonth: DateTime.now(),
-                cellAspectRatio: isPortrait ? 0.6 : 0.8, // Adjust for taller cells
-                onPageChange: (date, pageIndex) {},
-                onCellTap: (events, date) {
-                  // Handle tap
-                },
-              ),
+              child: _buildCalendarView(isPortrait, scale),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCalendarView(bool isPortrait, double scale) {
+    switch (_currentViewType) {
+      case CalendarViewType.week:
+        return WeekView(
+          controller: CalendarControllerProvider.of(context).controller,
+          minDay: DateTime(1990),
+          maxDay: DateTime(2050),
+          initialDay: _displayMonth,
+          heightPerMinute: 1.0,
+          onDateTap: (date) => _showAddEventDialog(date),
+          onEventTap: (events, date) => _showEventDetails(events.first),
+        );
+      case CalendarViewType.day:
+        return DayView(
+          controller: CalendarControllerProvider.of(context).controller,
+          minDay: DateTime(1990),
+          maxDay: DateTime(2050),
+          initialDay: _displayMonth,
+          heightPerMinute: 1.0,
+          onDateTap: (date) => _showAddEventDialog(date),
+          onEventTap: (events, date) => _showEventDetails(events.first),
+        );
+      default:
+        return MonthView(
+          controller: CalendarControllerProvider.of(context).controller,
+          headerBuilder: (date) {
+            return const SizedBox.shrink(); // Hide default header
+          },
+          cellBuilder: (date, events, isToday, isInMonth, hideDays) {
+            return _buildDateCell(date, events, isToday, isInMonth, scale);
+          },
+          minMonth: DateTime(1990),
+          maxMonth: DateTime(2050),
+          initialMonth: DateTime.now(),
+          cellAspectRatio: isPortrait ? 0.6 : 0.8, // Adjust for taller cells
+          onPageChange: (date, pageIndex) {
+            setState(() {
+              _displayMonth = date;
+            });
+          },
+          onCellTap: (events, date) {
+            _showAddEventDialog(date);
+          },
+        );
+    }
+  }
+
+  Future<void> _showAddEventDialog(DateTime date) async {
+    final titleController = TextEditingController();
+    TimeOfDay startTime = const TimeOfDay(hour: 9, minute: 0);
+    TimeOfDay endTime = const TimeOfDay(hour: 10, minute: 0);
+    
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Add Event"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: titleController,
+                    decoration: const InputDecoration(labelText: "Event Title"),
+                    autofocus: true,
+                  ),
+                  const SizedBox(height: 16),
+                  ListTile(
+                    title: const Text("Start Time"),
+                    trailing: Text(startTime.format(context)),
+                    onTap: () async {
+                      final picked = await showTimePicker(context: context, initialTime: startTime);
+                      if (picked != null) {
+                        setState(() => startTime = picked);
+                      }
+                    },
+                  ),
+                  ListTile(
+                    title: const Text("End Time"),
+                    trailing: Text(endTime.format(context)),
+                    onTap: () async {
+                      final picked = await showTimePicker(context: context, initialTime: endTime);
+                      if (picked != null) {
+                        setState(() => endTime = picked);
+                      }
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Cancel"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (titleController.text.isNotEmpty) {
+                      final event = CalendarEventData(
+                        date: date,
+                        title: titleController.text,
+                        startTime: DateTime(date.year, date.month, date.day, startTime.hour, startTime.minute),
+                        endTime: DateTime(date.year, date.month, date.day, endTime.hour, endTime.minute),
+                        color: Colors.blue,
+                      );
+                      CalendarControllerProvider.of(context).controller.add(event);
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text("Add"),
+                ),
+              ],
+            );
+          }
+        );
+      },
+    );
+  }
+
+  void _showEventDetails(CalendarEventData event) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(event.title),
+        content: Text("Time: ${event.startTime?.toString().substring(11, 16)} - ${event.endTime?.toString().substring(11, 16)}"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Close"),
+          ),
+          TextButton(
+             onPressed: () {
+               CalendarControllerProvider.of(context).controller.remove(event);
+               Navigator.pop(context);
+             },
+             style: TextButton.styleFrom(foregroundColor: Colors.red),
+             child: const Text("Delete"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWeekDaysHeader(double scale) {
+    final days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.0 * scale),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: days.map((day) => Text(
+          day,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14 * scale,
+            color: Colors.black,
+          ),
+        )).toList(),
       ),
     );
   }
@@ -185,14 +338,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
           now.weekday == DateTime.tuesday ? "Tuesday" : DateFormat('EEEE').format(now), // Dynamic but mock style
           style: TextStyle(
             fontSize: 16 * scale,
-            color: Colors.grey[600],
+            color: Colors.black,
           ),
         ),
         Text(
           dateFormat.format(now),
           style: TextStyle(
             fontSize: 20 * scale,
-            color: Colors.grey[600],
+            color: Colors.black,
             fontFamily: 'IBMPlexSansArabic', 
           ),
         ),
@@ -205,12 +358,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
             fontFamily: 'IBMPlexSansArabic', 
           ),
         ),
-        Text(
-          timeFormat.format(now),
-          style: TextStyle(
-            fontSize: 60 * scale,
-            fontWeight: FontWeight.w300,
-            color: Colors.black87,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            timeFormat.format(now),
+            style: TextStyle(
+              fontSize: 60 * scale,
+              fontWeight: FontWeight.w300,
+              color: Colors.black87,
+            ),
           ),
         ),
       ],
@@ -230,7 +386,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
         ],
         border: Border.all(color: Colors.grey.shade200),
       ),
-      child: Row(
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 20 * scale,
+        runSpacing: 10 * scale,
         children: [
            Column(
              crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,18 +398,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
                Icon(Icons.cloud, color: Colors.blue, size: 40 * scale),
                SizedBox(height: 10 * scale),
                Row(
+                 mainAxisSize: MainAxisSize.min,
                  children: [
                    Icon(Icons.water_drop, size: 14 * scale, color: Colors.blue),
                    Text(" 77%", style: TextStyle(fontSize: 12 * scale)),
                  ],
                ),
                Row(
+                 mainAxisSize: MainAxisSize.min,
                  children: [
                    Icon(Icons.compress, size: 14 * scale, color: Colors.blue),
                    Text(" 30.11 inHg", style: TextStyle(fontSize: 12 * scale)),
                  ],
                ),
                 Row(
+                 mainAxisSize: MainAxisSize.min,
                  children: [
                    Icon(Icons.wb_sunny_outlined, size: 14 * scale, color: Colors.blue),
                    Text(" 7:10:07 AM", style: TextStyle(fontSize: 12 * scale)),
@@ -257,7 +420,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                ),
              ],
            ),
-           const Spacer(),
            Column(
              crossAxisAlignment: CrossAxisAlignment.end,
              children: [
@@ -266,52 +428,72 @@ class _CalendarScreenState extends State<CalendarScreen> {
                  style: TextStyle(
                    fontSize: 48 * scale,
                    fontWeight: FontWeight.w300,
+                   color: Colors.black,
                  ),
                ),
-               Text("SSE 7 mi/h", style: TextStyle(fontSize: 12 * scale, color: Colors.grey)),
-               Text("10 mi", style: TextStyle(fontSize: 12 * scale, color: Colors.grey)),
-               Text("6:02:51 PM", style: TextStyle(fontSize: 12 * scale, color: Colors.grey)),
+               Text("SSE 7 mi/h", style: TextStyle(fontSize: 12 * scale, color: Colors.black)),
+               Text("10 mi", style: TextStyle(fontSize: 12 * scale, color: Colors.black)),
+               Text("6:02:51 PM", style: TextStyle(fontSize: 12 * scale, color: Colors.black)),
              ],
            )
         ],
       ),
     );
 
-    final forecastWidget = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        _buildForecastItem("Tue", Icons.cloud, "66°", "66°", scale),
-        _buildForecastItem("Wed", Icons.cloud_queue, "81°", "67°", scale),
-        _buildForecastItem("Thu", Icons.wb_sunny, "82°", "67°", scale),
-        _buildForecastItem("Fri", Icons.wb_cloudy, "83°", "68°", scale),
-        _buildForecastItem("Sat", Icons.wb_sunny_outlined, "85°", "67°", scale),
-      ],
+    final forecastWidget = SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          _buildForecastItem("Tue", Icons.cloud, "66°", "66°", scale),
+          SizedBox(width: 20 * scale),
+          _buildForecastItem("Wed", Icons.cloud_queue, "81°", "67°", scale),
+          SizedBox(width: 20 * scale),
+          _buildForecastItem("Thu", Icons.wb_sunny, "82°", "67°", scale),
+          SizedBox(width: 20 * scale),
+          _buildForecastItem("Fri", Icons.wb_cloudy, "83°", "68°", scale),
+          SizedBox(width: 20 * scale),
+          _buildForecastItem("Sat", Icons.wb_sunny_outlined, "85°", "67°", scale),
+        ],
+      ),
     );
 
     if (isPortrait) {
-      return Container(
-        padding: EdgeInsets.symmetric(vertical: 20 * scale, horizontal: 20 * scale),
-        child: Column(
-          children: [
-            timeWidget,
-            SizedBox(height: 16 * scale),
-            weatherWidget,
-            SizedBox(height: 16 * scale),
-            forecastWidget,
-          ],
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.4,
+        ),
+        child: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 20 * scale, horizontal: 20 * scale),
+            child: Column(
+              children: [
+                timeWidget,
+                SizedBox(height: 16 * scale),
+                weatherWidget,
+                SizedBox(height: 16 * scale),
+                forecastWidget,
+              ],
+            ),
+          ),
         ),
       );
     }
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 20 * scale, horizontal: 20 * scale),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(flex: 2, child: timeWidget),
-          Expanded(flex: 3, child: weatherWidget),
-          Expanded(flex: 2, child: forecastWidget),
-        ],
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(width: MediaQuery.of(context).size.width * 0.3, child: timeWidget),
+            SizedBox(width: 16 * scale),
+            SizedBox(width: MediaQuery.of(context).size.width * 0.4, child: weatherWidget),
+             SizedBox(width: 16 * scale),
+            SizedBox(width: MediaQuery.of(context).size.width * 0.3, child: forecastWidget),
+          ],
+        ),
       ),
     );
   }
@@ -319,12 +501,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget _buildForecastItem(String day, IconData icon, String high, String low, double scale) {
     return Column(
       children: [
-        Text(day, style: TextStyle(fontSize: 12 * scale, color: Colors.grey)),
+        Text(day, style: TextStyle(fontSize: 12 * scale, color: Colors.black)),
         SizedBox(height: 8 * scale),
         Icon(icon, color: Colors.amber, size: 24 * scale),
         SizedBox(height: 8 * scale),
-        Text(high, style: TextStyle(fontSize: 12 * scale, fontWeight: FontWeight.bold)),
-        Text(low, style: TextStyle(fontSize: 12 * scale, color: Colors.grey)),
+        Text(high, style: TextStyle(fontSize: 12 * scale, fontWeight: FontWeight.bold, color: Colors.black)),
+        Text(low, style: TextStyle(fontSize: 12 * scale, color: Colors.black)),
       ],
     );
   }
@@ -385,21 +567,52 @@ class _CalendarScreenState extends State<CalendarScreen> {
             ),
           ),
           SizedBox(height: 10 * scale),
-          // View selector mockup
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 12 * scale, vertical: 6 * scale),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.calendar_view_month, size: 16 * scale, color: Colors.black54),
-                SizedBox(width: 8 * scale),
-                Text("Select View\nMonth", style: TextStyle(fontSize: 12 * scale, height: 1.1)),
-                Icon(Icons.keyboard_arrow_down, size: 16 * scale, color: Colors.black54),
-              ],
+          // View selector
+          PopupMenuButton<CalendarViewType>(
+            initialValue: _currentViewType,
+            onSelected: (CalendarViewType result) {
+              setState(() {
+                _currentViewType = result;
+              });
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<CalendarViewType>>[
+              const PopupMenuItem<CalendarViewType>(
+                value: CalendarViewType.month,
+                child: Text('Month View'),
+              ),
+              const PopupMenuItem<CalendarViewType>(
+                value: CalendarViewType.week,
+                child: Text('Week View'),
+              ),
+              const PopupMenuItem<CalendarViewType>(
+                value: CalendarViewType.day,
+                child: Text('Day View'),
+              ),
+            ],
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12 * scale, vertical: 6 * scale),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    _currentViewType == CalendarViewType.month ? Icons.calendar_view_month :
+                    _currentViewType == CalendarViewType.week ? Icons.calendar_view_week :
+                    Icons.calendar_view_day,
+                    size: 16 * scale, 
+                    color: Colors.black54
+                  ),
+                  SizedBox(width: 8 * scale),
+                  Text(
+                    "Select View\n${_currentViewType.name[0].toUpperCase()}${_currentViewType.name.substring(1)}", 
+                    style: TextStyle(fontSize: 12 * scale, height: 1.1)
+                  ),
+                  Icon(Icons.keyboard_arrow_down, size: 16 * scale, color: Colors.black54),
+                ],
+              ),
             ),
           ),
         ],
@@ -455,11 +668,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
                     date.day.toString(),
                     style: TextStyle(
                       fontSize: 24 * scale,
@@ -467,29 +679,26 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       color: isToday ? Colors.orange : Colors.black87,
                     ),
                   ),
-                  if (date.day <= 7) // Show day name for first row
-                    Padding(
-                      padding: EdgeInsets.only(left: 4 * scale),
-                      child: Text(
-                        DateFormat('E').format(date),
-                        style: TextStyle(fontSize: 12 * scale, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                ],
+                ),
               ),
-              Row(
-                children: [
-                  Text(
-                    "${65 + (date.day % 15)}°F / ${50 + (date.day % 10)}°F", // Mock temp
-                    style: TextStyle(fontSize: 10 * scale, color: Colors.grey),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    children: [
+                      Text(
+                        "${65 + (date.day % 15)}°F / ${50 + (date.day % 10)}°F", // Mock temp
+                        style: TextStyle(fontSize: 10 * scale, color: Colors.black),
+                      ),
+                      SizedBox(width: 4 * scale),
+                      Icon(
+                        date.day % 3 == 0 ? Icons.wb_sunny : (date.day % 3 == 1 ? Icons.cloud : Icons.water_drop),
+                        size: 14 * scale,
+                        color: date.day % 3 == 0 ? Colors.amber : Colors.blueGrey,
+                      ),
+                    ],
                   ),
-                  SizedBox(width: 4 * scale),
-                  Icon(
-                    date.day % 3 == 0 ? Icons.wb_sunny : (date.day % 3 == 1 ? Icons.cloud : Icons.water_drop),
-                    size: 14 * scale,
-                    color: date.day % 3 == 0 ? Colors.amber : Colors.blueGrey,
-                  ),
-                ],
+                ),
               ),
             ],
           ),

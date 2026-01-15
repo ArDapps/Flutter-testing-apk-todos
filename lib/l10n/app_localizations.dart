@@ -164,11 +164,11 @@ abstract class AppLocalizations {
   /// **'Calendar'**
   String get calendar;
 
-  /// No description provided for @skylight.
+  /// No description provided for @nasaqapp.
   ///
   /// In en, this message translates to:
-  /// **'Nasaq'**
-  String get skylight;
+  /// **'NasaqApp'**
+  String get nasaqapp;
 
   /// No description provided for @organizeDay.
   ///

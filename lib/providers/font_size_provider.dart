@@ -14,6 +14,11 @@ class FontSizeProvider with ChangeNotifier {
 
   Future<void> _loadFontSize() async {
     _fontScale = await _storage.getFontSize();
+    // Migration: If user had 2.0, reduce to 1.5 as 2.0 was too large
+    if (_fontScale >= 2.0) {
+      _fontScale = 1.5;
+      await _storage.saveFontSize(1.5);
+    }
     notifyListeners();
   }
 

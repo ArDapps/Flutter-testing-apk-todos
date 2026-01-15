@@ -8,6 +8,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'dart:math';
 import '../providers/todo_provider.dart';
 import '../providers/font_size_provider.dart';
+import '../models/todo.dart';
 import '../widgets/todo_item.dart';
 
 class TodoListScreen extends StatefulWidget {
@@ -21,6 +22,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
   late ConfettiController _confettiController;
   late FlutterTts _flutterTts;
   late AudioPlayer _audioPlayer;
+  String _selectedCategory = 'All';
 
   @override
   void initState() {
@@ -144,11 +146,10 @@ class _TodoListScreenState extends State<TodoListScreen> {
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           children: [
-                             _buildCategoryPill("All", Colors.black87, true, scale),
-                             _buildCategoryPill("Personal", const Color(0xFFEF9A9A), false, scale),
-                             _buildCategoryPill("Work", const Color(0xFF90CAF9), false, scale),
-                             _buildCategoryPill("Grocery", const Color(0xFFA5D6A7), false, scale),
-                             _buildCategoryPill("Family", const Color(0xFFFFCC80), false, scale),
+                             _buildCategoryPill("All", Colors.black87, _selectedCategory == 'All', scale),
+                             _buildCategoryPill("Personal", const Color(0xFFEF9A9A), _selectedCategory == 'Personal', scale),
+                             _buildCategoryPill("Chores", const Color(0xFF90CAF9), _selectedCategory == 'Chores', scale),
+                             _buildCategoryPill("Grocery", const Color(0xFFA5D6A7), _selectedCategory == 'Grocery', scale),
                           ],
                         ),
                       ),
@@ -164,7 +165,22 @@ class _TodoListScreenState extends State<TodoListScreen> {
                         return const Center(child: CircularProgressIndicator());
                       }
 
-                      if (provider.generalTodos.isEmpty) {
+                      // Filter tasks based on selection
+                      List<Todo> todosToShow;
+                      if (_selectedCategory == 'All') {
+                        todosToShow = provider.todos;
+                      } else if (_selectedCategory == 'Personal') {
+                        // Match both 'general' (legacy) and 'personal' (if renamed)
+                        todosToShow = provider.todos.where((t) => t.category == 'general' || t.category == 'personal').toList();
+                      } else if (_selectedCategory == 'Chores') {
+                        todosToShow = provider.todos.where((t) => t.category == 'chore').toList();
+                      } else if (_selectedCategory == 'Grocery') {
+                        todosToShow = provider.todos.where((t) => t.category == 'grocery').toList();
+                      } else {
+                        todosToShow = provider.todos;
+                      }
+
+                      if (todosToShow.isEmpty) {
                         return Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -185,10 +201,10 @@ class _TodoListScreenState extends State<TodoListScreen> {
 
                       return ListView.builder(
                         padding: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 0),
-                        itemCount: provider.generalTodos.length,
+                        itemCount: todosToShow.length,
                         itemBuilder: (context, index) {
                           return TodoItem(
-                            todo: provider.generalTodos[index],
+                            todo: todosToShow[index],
                             onStatusChanged: _onTaskCompleted,
                           );
                         },
@@ -229,20 +245,27 @@ class _TodoListScreenState extends State<TodoListScreen> {
   }
 
   Widget _buildCategoryPill(String label, Color color, bool isSelected, double scale) {
-    return Container(
-      margin: EdgeInsets.only(right: 10 * scale),
-      padding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 8 * scale),
-      decoration: BoxDecoration(
-        color: isSelected ? color : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isSelected ? color : Colors.grey.shade300),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isSelected ? Colors.white : Colors.black87,
-          fontWeight: FontWeight.bold,
-          fontSize: 14 * scale,
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedCategory = label;
+        });
+      },
+      child: Container(
+        margin: EdgeInsets.only(right: 10 * scale),
+        padding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 8 * scale),
+        decoration: BoxDecoration(
+          color: isSelected ? color : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: isSelected ? color : Colors.grey.shade300),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black87,
+            fontWeight: FontWeight.bold,
+            fontSize: 14 * scale,
+          ),
         ),
       ),
     );

@@ -42,7 +42,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendar => 'Calendar';
 
   @override
-  String get skylight => 'Nasaq';
+  String get nasaqapp => 'NasaqApp';
 
   @override
   String get organizeDay => 'Organize your day';

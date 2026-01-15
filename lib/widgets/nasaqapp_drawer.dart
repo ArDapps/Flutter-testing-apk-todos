@@ -5,8 +5,8 @@ import '../screens/calendar_screen.dart';
 import '../screens/grocery_screen.dart';
 import '../screens/settings_screen.dart';
 
-class SkylightDrawer extends StatelessWidget {
-  const SkylightDrawer({super.key});
+class NasaqappDrawer extends StatelessWidget {
+  const NasaqappDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +29,8 @@ class SkylightDrawer extends StatelessWidget {
                   Image.asset(
                     'assets/logo.png',
                     height: 100,
+                    width: 100,
                     fit: BoxFit.contain,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.skylight,
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF1B5E20),
-                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(

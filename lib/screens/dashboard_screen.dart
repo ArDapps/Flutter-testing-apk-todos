@@ -89,33 +89,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
               
               // Main Content
               Expanded(
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 10 * scale),
-                  children: [
-                    ...todoProvider.profiles.map((profile) {
-                      return ProfileColumn(
-                        profile: profile,
-                        todos: profileTodos[profile.id] ?? [],
-                        onAddPressed: () => _showAddTaskDialog(context, profileId: profile.id),
-                        onTaskCompleted: (todo, isCompleted) {
-                          // TodoItem handles the toggle internally via Provider
-                          // We just check if it became completed to play the sound
-                          _onTaskCompleted(isCompleted);
-                        }, 
-                      );
-                    }),
-                    
-                    // Special Chores Column
-                    ChoresColumn(
-                      chores: chores,
-                      onChoreToggled: (chore, value) {
-                        todoProvider.toggleTodoStatus(chore.id);
-                        _onTaskCompleted(value);
-                      },
-                    ),
-                  ],
-                ),
+                child: todoProvider.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView(
+                        scrollDirection: Axis.horizontal,
+                        padding: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 10 * scale),
+                        children: [
+                          if (todoProvider.profiles.isEmpty)
+                            Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(20 * scale),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text("No profiles found", style: TextStyle(fontSize: 16 * scale)),
+                                    ElevatedButton(
+                                      onPressed: () => todoProvider.resetData(), // Need to add this method
+                                      child: const Text("Reset Data"),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          else
+                            ...todoProvider.profiles.map((profile) {
+                              return ProfileColumn(
+                                profile: profile,
+                                todos: profileTodos[profile.id] ?? [],
+                                onAddPressed: () => _showAddTaskDialog(context, profileId: profile.id),
+                                onTaskCompleted: (todo, isCompleted) {
+                                  _onTaskCompleted(isCompleted);
+                                }, 
+                              );
+                            }),
+                          
+                          // Special Chores Column
+                          ChoresColumn(
+                            chores: chores,
+                            onChoreToggled: (chore, value) {
+                              todoProvider.toggleTodoStatus(chore.id);
+                              _onTaskCompleted(value);
+                            },
+                          ),
+                        ],
+                      ),
               ),
             ],
           ),
@@ -181,70 +198,85 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 32 * scale, vertical: 24 * scale),
       color: Colors.white,
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '$dateStr $timeStr',
-                style: TextStyle(
-                  fontSize: 24 * scale,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              SizedBox(height: 8 * scale),
-              Row(
-                children: [
-                  Icon(Icons.wb_sunny, color: Colors.orange, size: 20 * scale),
-                  SizedBox(width: 8 * scale),
-                  Text(
-                    '72°F',
-                    style: TextStyle(
-                      fontSize: 16 * scale,
-                      color: Colors.grey.shade600,
-                      fontWeight: FontWeight.w500,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$dateStr $timeStr',
+                      style: TextStyle(
+                        fontSize: 24 * scale,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
                     ),
-                  ),
-                ],
+                    SizedBox(height: 8 * scale),
+                    Row(
+                      children: [
+                        Icon(Icons.wb_sunny, color: Colors.orange, size: 20 * scale),
+                        SizedBox(width: 8 * scale),
+                        Text(
+                          '72°F',
+                          style: TextStyle(
+                            fontSize: 16 * scale,
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-          const Spacer(),
-          // Right side controls
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 8 * scale),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(20),
-            ),
+          SizedBox(height: 16 * scale),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                Icon(Icons.filter_list, size: 20 * scale, color: Colors.grey.shade700),
-                SizedBox(width: 8 * scale),
-                Text(l10n.filter, style: TextStyle(fontSize: 14 * scale, color: Colors.grey.shade700)),
+                // Right side controls
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 8 * scale),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.filter_list, size: 20 * scale, color: Colors.grey.shade700),
+                      SizedBox(width: 8 * scale),
+                      Text(l10n.filter, style: TextStyle(fontSize: 14 * scale, color: Colors.grey.shade700)),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 16 * scale),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 8 * scale),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(l10n.today, style: TextStyle(fontSize: 14 * scale, fontWeight: FontWeight.w600)),
+                ),
+                SizedBox(width: 16 * scale),
+                IconButton(
+                  onPressed: () {},
+                  icon: Icon(Icons.chevron_left, size: 24 * scale),
+                ),
+                IconButton(
+                  onPressed: () {},
+                  icon: Icon(Icons.chevron_right, size: 24 * scale),
+                ),
               ],
             ),
-          ),
-          SizedBox(width: 16 * scale),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 8 * scale),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(l10n.today, style: TextStyle(fontSize: 14 * scale, fontWeight: FontWeight.w600)),
-          ),
-          SizedBox(width: 16 * scale),
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.chevron_left, size: 24 * scale),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.chevron_right, size: 24 * scale),
           ),
         ],
       ),

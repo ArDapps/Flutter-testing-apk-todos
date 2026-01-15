@@ -81,14 +81,8 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       const Divider(height: 1),
                       RadioListTile<double>(
-                        title: const Text('2x'),
-                        value: 2.0,
-                        activeColor: Theme.of(context).primaryColor,
-                      ),
-                      const Divider(height: 1),
-                      RadioListTile<double>(
-                        title: const Text('3x'),
-                        value: 3.0,
+                        title: const Text('1.5x'),
+                        value: 1.5,
                         activeColor: Theme.of(context).primaryColor,
                       ),
                     ],

@@ -42,7 +42,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get calendar => 'التقويم';
 
   @override
-  String get skylight => 'نسق';
+  String get nasaqapp => 'نسق';
 
   @override
   String get organizeDay => 'نظم يومك';

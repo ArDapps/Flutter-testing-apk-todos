@@ -4,6 +4,7 @@ import 'package:todo_app/l10n/app_localizations.dart';
 import 'package:todo_app/screens/calendar_screen.dart';
 import 'package:todo_app/screens/grocery_screen.dart';
 import 'package:todo_app/screens/dashboard_screen.dart';
+import 'package:todo_app/screens/todo_list_screen.dart';
 import 'package:todo_app/screens/settings_screen.dart';
 import '../providers/font_size_provider.dart';
 
@@ -20,6 +21,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const DashboardScreen(),
     const CalendarScreen(),
+    const TodoListScreen(),
     const GroceryScreen(),
     const SettingsScreen(),
   ];
@@ -48,17 +50,9 @@ class _MainScreenState extends State<MainScreen> {
               leading: Column(
                 children: [
                   const SizedBox(height: 20),
-                  Image.asset('assets/logo.png', height: 80 * scale),
+                  Image.asset('assets/logo.png', height: 100 * scale),
                   const SizedBox(height: 8),
-                  Text(
-                    l10n.skylight,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: const Color(0xFF1B5E20),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+             
                 ],
               ),
               backgroundColor: Colors.white,
@@ -67,11 +61,11 @@ class _MainScreenState extends State<MainScreen> {
               selectedLabelTextStyle: TextStyle(
                 color: const Color(0xFF1B5E20),
                 fontWeight: FontWeight.bold,
-                fontSize: 12,
+                fontSize: 12 * scale,
               ),
               unselectedLabelTextStyle: TextStyle(
                 color: Colors.grey,
-                fontSize: 12,
+                fontSize: 12 * scale,
               ),
               destinations: [
                 NavigationRailDestination(
@@ -90,6 +84,11 @@ class _MainScreenState extends State<MainScreen> {
                   label: Text(l10n.lists),
                 ),
                 NavigationRailDestination(
+                  icon: const Icon(Icons.shopping_cart_outlined),
+                  selectedIcon: const Icon(Icons.shopping_cart),
+                  label: Text(l10n.grocery),
+                ),
+                NavigationRailDestination(
                   icon: const Icon(Icons.settings_outlined),
                   selectedIcon: const Icon(Icons.settings),
                   label: Text(l10n.settings),
@@ -105,7 +104,23 @@ class _MainScreenState extends State<MainScreen> {
       ),
       bottomNavigationBar: isWideScreen
           ? null
-          : NavigationBar(
+          : NavigationBarTheme(
+              data: NavigationBarThemeData(
+                labelTextStyle: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return TextStyle(
+                      fontSize: 12 * scale,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF1B5E20),
+                    );
+                  }
+                  return TextStyle(
+                    fontSize: 12 * scale,
+                    color: Colors.black87,
+                  );
+                }),
+              ),
+              child: NavigationBar(
               selectedIndex: _selectedIndex,
               onDestinationSelected: (int index) {
                 setState(() {
@@ -131,12 +146,18 @@ class _MainScreenState extends State<MainScreen> {
                   label: l10n.lists,
                 ),
                 NavigationDestination(
+                  icon: Icon(Icons.shopping_cart_outlined, size: 24 * scale),
+                  selectedIcon: Icon(Icons.shopping_cart, size: 24 * scale, color: const Color(0xFF1B5E20)),
+                  label: l10n.grocery,
+                ),
+                NavigationDestination(
                   icon: Icon(Icons.settings_outlined, size: 24 * scale),
                   selectedIcon: Icon(Icons.settings, size: 24 * scale, color: const Color(0xFF1B5E20)),
                   label: l10n.settings,
                 ),
               ],
             ),
+          )
     );
   }
 }

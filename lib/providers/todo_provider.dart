@@ -67,4 +67,18 @@ class TodoProvider with ChangeNotifier {
     notifyListeners();
     await _storageService.saveTodos(_todos);
   }
+
+  Future<void> resetData() async {
+    _isLoading = true;
+    notifyListeners();
+    
+    // Clear existing data
+    _todos.clear();
+    _profiles.clear();
+    await _storageService.saveTodos([]);
+    await _storageService.saveProfiles([]);
+    
+    // Reload defaults
+    await _loadData();
+  }
 }

@@ -48,7 +48,7 @@ class TodoItem extends StatelessWidget {
             ),
           ],
         ),
-        child: ListTile(
+        child: GestureDetector(
           onTap: () {
             // Click card to toggle
             final newValue = !todo.isCompleted;
@@ -57,46 +57,61 @@ class TodoItem extends StatelessWidget {
               onStatusChanged!(newValue);
             }
           },
-          contentPadding: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 8 * scale),
-          leading: Transform.scale(
-            scale: 1.2 * scale,
-            child: Checkbox(
-              shape: const CircleBorder(),
-              value: todo.isCompleted,
-              activeColor: Colors.green, // Green check
-              checkColor: Colors.white,
-              side: BorderSide(
-                  color: todo.isCompleted ? Colors.green : Colors.grey.shade400, width: 2),
-              onChanged: (value) {
-                Provider.of<TodoProvider>(context, listen: false)
-                    .toggleTodoStatus(todo.id);
-                if (onStatusChanged != null) {
-                  onStatusChanged!(value);
-                }
-              },
-            ),
-          ),
-          title: Text(
-            todo.title,
-            style: TextStyle(
-              fontSize: 16 * scale,
-              decoration: todo.isCompleted
-                  ? TextDecoration.lineThrough
-                  : TextDecoration.none,
-              color: todo.isCompleted ? Colors.green.shade800 : Colors.black87,
-              fontWeight: todo.isCompleted ? FontWeight.normal : FontWeight.w600,
-            ),
-          ),
-          trailing: todo.isCompleted
-              ? const Icon(Icons.emoji_events, color: Colors.amber) // Win trophy
-              : Container(
-                  width: 12 * scale,
-                  height: 12 * scale,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFEF9A9A), // Mock priority/category color
-                    shape: BoxShape.circle,
+          behavior: HitTestBehavior.opaque,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 8 * scale),
+            child: Row(
+            children: [
+              SizedBox(
+                width: 24 * 1.2 * scale,
+                height: 24 * 1.2 * scale,
+                child: Transform.scale(
+                  scale: 1.2 * scale,
+                  child: Checkbox(
+                    shape: const CircleBorder(),
+                    value: todo.isCompleted,
+                    activeColor: Colors.green, // Green check
+                    checkColor: Colors.white,
+                    side: BorderSide(
+                        color: todo.isCompleted ? Colors.green : Colors.grey.shade400, width: 2),
+                    onChanged: (value) {
+                      Provider.of<TodoProvider>(context, listen: false)
+                          .toggleTodoStatus(todo.id);
+                      if (onStatusChanged != null) {
+                        onStatusChanged!(value);
+                      }
+                    },
                   ),
                 ),
+              ),
+              SizedBox(width: 16 * scale),
+              Expanded(
+                child: Text(
+                  todo.title,
+                  style: TextStyle(
+                    fontSize: 16 * scale,
+                    decoration: todo.isCompleted
+                        ? TextDecoration.lineThrough
+                        : TextDecoration.none,
+                    color: todo.isCompleted ? Colors.green.shade800 : Colors.black87,
+                    fontWeight: todo.isCompleted ? FontWeight.normal : FontWeight.w600,
+                  ),
+                ),
+              ),
+              SizedBox(width: 8 * scale),
+              todo.isCompleted
+                  ? Icon(Icons.emoji_events, color: Colors.amber, size: 24 * scale) // Win trophy
+                  : Container(
+                      width: 12 * scale,
+                      height: 12 * scale,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFEF9A9A), // Mock priority/category color
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+              ],
+            ),
+          ),
         ),
       ),
     ).animate().fadeIn().slideX();
