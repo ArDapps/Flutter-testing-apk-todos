@@ -1,0 +1,26 @@
+
+{
+  "appTitle": "Todo App",
+  "todoTitle": "To Do",
+  "noTasks": "No tasks yet!",
+  "addNewTask": "Add New Task",
+  "taskHint": "What needs to be done?",
+  "addTask": "Add Task",
+  "settings": "Settings",
+  "language": "Language",
+  "grocery": "Grocery",
+  "calendar": "Calendar",
+  "skylight": "Nasaq",
+  "organizeDay": "Organize your day",
+  "welcomeTitle": "Welcome to Nasaq",
+  "welcomeDesc": "Manage your tasks efficiently and effectively.",
+  "organizeTitle": "Stay Organized",
+  "organizeDesc": "Group your tasks and keep track of your progress.",
+  "doneTitle": "Get Things Done",
+  "doneDesc": "Achieve your goals with our simple and intuitive interface.",
+  "next": "Next",
+  "getStarted": "Get Started",
+  "delete": "Delete",
+  "resetOnboarding": "Reset Onboarding",
+  "resetOnboardingSuccess": "Onboarding reset! Restart app to see it."
+}

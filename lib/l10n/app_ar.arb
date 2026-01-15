@@ -1,0 +1,26 @@
+
+{
+  "appTitle": "تطبيق المهام",
+  "todoTitle": "المهام",
+  "noTasks": "لا توجد مهام بعد!",
+  "addNewTask": "إضافة مهمة جديدة",
+  "taskHint": "ما الذي يجب القيام به؟",
+  "addTask": "إضافة المهمة",
+  "settings": "الإعدادات",
+  "language": "اللغة",
+  "grocery": "البقالة",
+  "calendar": "التقويم",
+  "skylight": "نسق",
+  "organizeDay": "نظم يومك",
+  "welcomeTitle": "مرحبًا بك في نسق",
+  "welcomeDesc": "أدر مهامك بكفاءة وفعالية.",
+  "organizeTitle": "ابق منظمًا",
+  "organizeDesc": "قم بتجميع مهامك وتتبع تقدمك.",
+  "doneTitle": "أنجز الأمور",
+  "doneDesc": "حقق أهدافك من خلال واجهتنا البسيطة والبديهية.",
+  "next": "التالي",
+  "getStarted": "ابدأ الآن",
+  "delete": "حذف",
+  "resetOnboarding": "إعادة تعيين الشاشة الترحيبية",
+  "resetOnboardingSuccess": "تمت إعادة التعيين! أعد تشغيل التطبيق."
+}
