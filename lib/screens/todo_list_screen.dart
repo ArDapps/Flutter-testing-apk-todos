@@ -9,7 +9,6 @@ import 'dart:math';
 import '../providers/todo_provider.dart';
 import '../providers/font_size_provider.dart';
 import '../models/todo.dart';
-import '../widgets/todo_item.dart';
 
 class TodoListScreen extends StatefulWidget {
   const TodoListScreen({super.key});
@@ -100,119 +99,213 @@ class _TodoListScreenState extends State<TodoListScreen> {
     final fontSizeProvider = Provider.of<FontSizeProvider>(context);
     final scale = fontSizeProvider.fontScale;
     
+    // Define pastel colors for the cards
+    final List<Color> cardColors = [
+      const Color(0xFFFFCDD2), // Red 100
+      const Color(0xFFF8BBD0), // Pink 100
+      const Color(0xFFE1BEE7), // Purple 100
+      const Color(0xFFD1C4E9), // Deep Purple 100
+      const Color(0xFFC5CAE9), // Indigo 100
+      const Color(0xFFBBDEFB), // Blue 100
+      const Color(0xFFB3E5FC), // Light Blue 100
+      const Color(0xFFB2EBF2), // Cyan 100
+      const Color(0xFFB2DFDB), // Teal 100
+      const Color(0xFFC8E6C9), // Green 100
+      const Color(0xFFDCEDC8), // Light Green 100
+      const Color(0xFFF0F4C3), // Lime 100
+      const Color(0xFFFFF9C4), // Yellow 100
+      const Color(0xFFFFECB3), // Amber 100
+      const Color(0xFFFFE0B2), // Orange 100
+      const Color(0xFFFFCCBC), // Deep Orange 100
+    ];
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Stack(
+          fit: StackFit.expand,
           children: [
-            Column(
-              children: [
-                // 1. Header & Filters (Skylight Style)
-                Container(
-                  padding: EdgeInsets.all(20 * scale),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            l10n.todoTitle,
-                            style: TextStyle(
-                              fontSize: 32 * scale,
-                              fontFamily: 'IBMPlexSansArabic',
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          // Add Button (Pill shape like Calendar)
-                          ElevatedButton.icon(
-                            onPressed: () => _showAddTodoDialog(context),
-                            icon: Icon(Icons.add, size: 18 * scale),
-                            label: Text(l10n.addTask, style: TextStyle(fontSize: 14 * scale)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF37474F), // Dark slate
-                              foregroundColor: Colors.white,
-                              padding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 12 * scale),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                              elevation: 0,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20 * scale),
-                      // Mock Filters/Categories
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
+            Positioned.fill(
+              child: Column(
+                children: [
+                  // 1. Header & Filters
+                  Container(
+                    padding: EdgeInsets.all(20 * scale),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                             _buildCategoryPill("All", Colors.black87, _selectedCategory == 'All', scale),
-                             _buildCategoryPill("Personal", const Color(0xFFEF9A9A), _selectedCategory == 'Personal', scale),
-                             _buildCategoryPill("Chores", const Color(0xFF90CAF9), _selectedCategory == 'Chores', scale),
-                             _buildCategoryPill("Grocery", const Color(0xFFA5D6A7), _selectedCategory == 'Grocery', scale),
+                            Text(
+                              l10n.todoTitle,
+                              style: TextStyle(
+                                fontSize: 32 * scale,
+                                fontFamily: 'IBMPlexSansArabic',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            ElevatedButton.icon(
+                              onPressed: () => _showAddTodoDialog(context),
+                              icon: Icon(Icons.add, size: 18 * scale),
+                              label: Text(l10n.addTask, style: TextStyle(fontSize: 14 * scale)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 12 * scale),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                elevation: 0,
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                // 2. Task List
-                Expanded(
-                  child: Consumer<TodoProvider>(
-                    builder: (context, provider, child) {
-                      if (provider.isLoading) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      // Filter tasks based on selection
-                      List<Todo> todosToShow;
-                      if (_selectedCategory == 'All') {
-                        todosToShow = provider.todos;
-                      } else if (_selectedCategory == 'Personal') {
-                        // Match both 'general' (legacy) and 'personal' (if renamed)
-                        todosToShow = provider.todos.where((t) => t.category == 'general' || t.category == 'personal').toList();
-                      } else if (_selectedCategory == 'Chores') {
-                        todosToShow = provider.todos.where((t) => t.category == 'chore').toList();
-                      } else if (_selectedCategory == 'Grocery') {
-                        todosToShow = provider.todos.where((t) => t.category == 'grocery').toList();
-                      } else {
-                        todosToShow = provider.todos;
-                      }
-
-                      if (todosToShow.isEmpty) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                        SizedBox(height: 20 * scale),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
                             children: [
-                              Icon(Icons.task_alt, size: 100 * scale, color: Colors.grey.shade200),
-                              const SizedBox(height: 20),
-                              Text(
-                                l10n.noTasks,
-                                style: TextStyle(
-                                  fontSize: 18 * scale,
-                                  color: Colors.grey.shade400,
-                                ),
-                              ),
+                               _buildCategoryPill("All", Colors.black87, _selectedCategory == 'All', scale),
+                               _buildCategoryPill("Personal", const Color(0xFFEF9A9A), _selectedCategory == 'Personal', scale),
+                               _buildCategoryPill("Chores", const Color(0xFF90CAF9), _selectedCategory == 'Chores', scale),
+                               _buildCategoryPill("Grocery", const Color(0xFFA5D6A7), _selectedCategory == 'Grocery', scale),
                             ],
                           ),
-                        );
-                      }
-
-                      return ListView.builder(
-                        padding: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 0),
-                        itemCount: todosToShow.length,
-                        itemBuilder: (context, index) {
-                          return TodoItem(
-                            todo: todosToShow[index],
-                            onStatusChanged: _onTaskCompleted,
-                          );
-                        },
-                      );
-                    },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  
+                  // 2. Task Grid
+                  Expanded(
+                    child: Consumer<TodoProvider>(
+                      builder: (context, provider, child) {
+                        if (provider.isLoading) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+
+                        // Filter tasks based on selection
+                        List<Todo> todosToShow;
+                        if (_selectedCategory == 'All') {
+                          todosToShow = provider.todos;
+                        } else if (_selectedCategory == 'Personal') {
+                          todosToShow = provider.todos.where((t) => t.category == 'general' || t.category == 'personal').toList();
+                        } else if (_selectedCategory == 'Chores') {
+                          todosToShow = provider.todos.where((t) => t.category == 'chore').toList();
+                        } else if (_selectedCategory == 'Grocery') {
+                          todosToShow = provider.todos.where((t) => t.category == 'grocery').toList();
+                        } else {
+                          todosToShow = provider.todos;
+                        }
+
+                        if (todosToShow.isEmpty) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.grid_view, size: 100 * scale, color: Colors.grey.shade200),
+                                const SizedBox(height: 20),
+                                Text(
+                                  l10n.noTasks,
+                                  style: TextStyle(
+                                    fontSize: 18 * scale,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        // Determine crossAxisCount based on screen width
+                        int crossAxisCount = MediaQuery.of(context).size.width > 600 ? 4 : 2;
+
+                        return GridView.builder(
+                          padding: EdgeInsets.all(20 * scale),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: crossAxisCount,
+                            crossAxisSpacing: 16 * scale,
+                            mainAxisSpacing: 16 * scale,
+                            childAspectRatio: 1.0, // Square cards
+                          ),
+                          itemCount: todosToShow.length,
+                          itemBuilder: (context, index) {
+                            final todo = todosToShow[index];
+                            final color = cardColors[index % cardColors.length];
+                            
+                            return GestureDetector(
+              onTap: () {
+                final wasCompleted = todo.isCompleted;
+                provider.toggleTodoStatus(todo.id);
+                _onTaskCompleted(!wasCompleted);
+              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: color,
+                                  borderRadius: BorderRadius.circular(24 * scale),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: color.withOpacity(0.4),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                padding: EdgeInsets.all(16 * scale),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.all(8 * scale),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(0.5),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            todo.isCompleted ? Icons.check : Icons.circle_outlined,
+                                            size: 20 * scale,
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                        if (todo.isCompleted)
+                                          Icon(Icons.check_circle, color: Colors.white.withOpacity(0.6), size: 24 * scale),
+                                      ],
+                                    ),
+                                    Text(
+                                      todo.title,
+                                      style: TextStyle(
+                                        fontSize: 18 * scale,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                        decoration: todo.isCompleted ? TextDecoration.lineThrough : null,
+                                      ),
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      todo.category.toUpperCase(),
+                                      style: TextStyle(
+                                        fontSize: 10 * scale,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black45,
+                                        letterSpacing: 1.2,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
             
             // Confetti Widget
@@ -220,22 +313,17 @@ class _TodoListScreenState extends State<TodoListScreen> {
               alignment: Alignment.center,
               child: ConfettiWidget(
                 confettiController: _confettiController,
-                blastDirectionality: BlastDirectionality.explosive, // Explosive from center
+                blastDirectionality: BlastDirectionality.explosive,
                 shouldLoop: false,
                 colors: const [
-                  Colors.green,
-                  Colors.blue,
-                  Colors.pink,
-                  Colors.orange,
-                  Colors.purple,
-                  Colors.yellow, // Added yellow
+                  Colors.green, Colors.blue, Colors.pink, Colors.orange, Colors.purple, Colors.yellow,
                 ],
                 createParticlePath: _drawStar,
-                emissionFrequency: 0.1, // Faster emission
-                numberOfParticles: 100, // More particles for full screen effect
-                gravity: 0.3, // Faster fall
-                minBlastForce: 30, // Faster explosion
-                maxBlastForce: 60, // Much faster explosion
+                emissionFrequency: 0.1,
+                numberOfParticles: 100,
+                gravity: 0.3,
+                minBlastForce: 30,
+                maxBlastForce: 60,
               ),
             ),
           ],

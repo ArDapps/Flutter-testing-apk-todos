@@ -64,54 +64,78 @@ class ChoresColumn extends StatelessWidget {
 
           // Chores List
           Expanded(
-            child: ListView.builder(
+            child: GridView.builder(
+              padding: EdgeInsets.zero,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12 * scale,
+                mainAxisSpacing: 12 * scale,
+                childAspectRatio: 1.0,
+              ),
               itemCount: chores.length,
               itemBuilder: (context, index) {
                 final chore = chores[index];
-                return Container(
-                  margin: EdgeInsets.only(bottom: 12 * scale),
-                  padding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 16 * scale),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20 * scale),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      // Icon/Emoji placeholder
-                      Container(
-                        padding: EdgeInsets.all(8 * scale),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(12),
+                // Blue/Cyan/Teal color palette for chores
+                final color = [
+                  const Color(0xFFB3E5FC), // Light Blue 100
+                  const Color(0xFFB2EBF2), // Cyan 100
+                  const Color(0xFFB2DFDB), // Teal 100
+                  const Color(0xFFE1F5FE), // Light Blue 50
+                  const Color(0xFFE0F7FA), // Cyan 50
+                  const Color(0xFFE0F2F1), // Teal 50
+                ][index % 6];
+
+                return GestureDetector(
+                  onTap: () => onChoreToggled(chore, !chore.isCompleted),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(20 * scale),
+                      boxShadow: [
+                        BoxShadow(
+                          color: color.withOpacity(0.4),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
                         ),
-                        child: Icon(Icons.local_laundry_service, color: Colors.blue, size: 20 * scale),
-                      ),
-                      SizedBox(width: 12 * scale),
-                      Expanded(
-                        child: Text(
+                      ],
+                    ),
+                    padding: EdgeInsets.all(12 * scale),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(6 * scale),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.5),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                chore.isCompleted ? Icons.check : Icons.cleaning_services_outlined,
+                                size: 16 * scale,
+                                color: Colors.blue.shade700,
+                              ),
+                            ),
+                            if (chore.isCompleted)
+                              Icon(Icons.check_circle, color: Colors.white.withOpacity(0.6), size: 20 * scale),
+                          ],
+                        ),
+                        Text(
                           chore.title,
                           style: TextStyle(
-                            fontSize: 16 * scale,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 14 * scale,
+                            fontWeight: FontWeight.bold,
                             color: Colors.black87,
                             decoration: chore.isCompleted ? TextDecoration.lineThrough : null,
                           ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      Switch(
-                        value: chore.isCompleted,
-                        onChanged: (value) => onChoreToggled(chore, value),
-                        activeTrackColor: Colors.blue,
-                        thumbColor: WidgetStateProperty.all(Colors.white),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },

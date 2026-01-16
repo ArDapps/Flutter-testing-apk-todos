@@ -37,63 +37,74 @@ class _MainScreenState extends State<MainScreen> {
       body: Row(
         children: [
           if (isWideScreen)
-            NavigationRail(
-              minWidth: 110 * scale,
-              selectedIndex: _selectedIndex,
-              onDestinationSelected: (int index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: IntrinsicHeight(
+                      child: NavigationRail(
+                        minWidth: 110 * scale,
+                        selectedIndex: _selectedIndex,
+                        onDestinationSelected: (int index) {
+                          setState(() {
+                            _selectedIndex = index;
+                          });
+                        },
+                        extended: false,
+                        labelType: NavigationRailLabelType.all,
+                        leading: Column(
+                          children: [
+                            const SizedBox(height: 20),
+                            Image.asset('assets/logo.png', height: 100 * scale),
+                            const SizedBox(height: 8),
+                       
+                          ],
+                        ),
+                        backgroundColor: Colors.white,
+                        selectedIconTheme: IconThemeData(color: const Color(0xFF1B5E20), size: 30 * scale),
+                        unselectedIconTheme: IconThemeData(color: Colors.grey, size: 24 * scale),
+                        selectedLabelTextStyle: TextStyle(
+                          color: const Color(0xFF1B5E20),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12 * scale,
+                        ),
+                        unselectedLabelTextStyle: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12 * scale,
+                        ),
+                        destinations: [
+                          NavigationRailDestination(
+                            icon: const Icon(Icons.check_circle_outline),
+                            selectedIcon: const Icon(Icons.check_circle),
+                            label: Text(l10n.todoTitle),
+                          ),
+                          NavigationRailDestination(
+                            icon: const Icon(Icons.calendar_today_outlined),
+                            selectedIcon: const Icon(Icons.calendar_today),
+                            label: Text(l10n.calendar),
+                          ),
+                          NavigationRailDestination(
+                            icon: const Icon(Icons.list_alt_outlined),
+                            selectedIcon: const Icon(Icons.list_alt),
+                            label: Text(l10n.lists),
+                          ),
+                          NavigationRailDestination(
+                            icon: const Icon(Icons.shopping_cart_outlined),
+                            selectedIcon: const Icon(Icons.shopping_cart),
+                            label: Text(l10n.grocery),
+                          ),
+                          NavigationRailDestination(
+                            icon: const Icon(Icons.settings_outlined),
+                            selectedIcon: const Icon(Icons.settings),
+                            label: Text(l10n.settings),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
               },
-              extended: false,
-              labelType: NavigationRailLabelType.all,
-              leading: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  Image.asset('assets/logo.png', height: 100 * scale),
-                  const SizedBox(height: 8),
-             
-                ],
-              ),
-              backgroundColor: Colors.white,
-              selectedIconTheme: IconThemeData(color: const Color(0xFF1B5E20), size: 30 * scale),
-              unselectedIconTheme: IconThemeData(color: Colors.grey, size: 24 * scale),
-              selectedLabelTextStyle: TextStyle(
-                color: const Color(0xFF1B5E20),
-                fontWeight: FontWeight.bold,
-                fontSize: 12 * scale,
-              ),
-              unselectedLabelTextStyle: TextStyle(
-                color: Colors.grey,
-                fontSize: 12 * scale,
-              ),
-              destinations: [
-                NavigationRailDestination(
-                  icon: const Icon(Icons.check_circle_outline),
-                  selectedIcon: const Icon(Icons.check_circle),
-                  label: Text(l10n.todoTitle),
-                ),
-                NavigationRailDestination(
-                  icon: const Icon(Icons.calendar_today_outlined),
-                  selectedIcon: const Icon(Icons.calendar_today),
-                  label: Text(l10n.calendar),
-                ),
-                NavigationRailDestination(
-                  icon: const Icon(Icons.list_alt_outlined),
-                  selectedIcon: const Icon(Icons.list_alt),
-                  label: Text(l10n.lists),
-                ),
-                NavigationRailDestination(
-                  icon: const Icon(Icons.shopping_cart_outlined),
-                  selectedIcon: const Icon(Icons.shopping_cart),
-                  label: Text(l10n.grocery),
-                ),
-                NavigationRailDestination(
-                  icon: const Icon(Icons.settings_outlined),
-                  selectedIcon: const Icon(Icons.settings),
-                  label: Text(l10n.settings),
-                ),
-              ],
             ),
           if (isWideScreen)
             const VerticalDivider(thickness: 1, width: 1),

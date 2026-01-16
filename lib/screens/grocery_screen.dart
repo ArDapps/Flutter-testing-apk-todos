@@ -7,7 +7,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'dart:math';
 import '../providers/todo_provider.dart';
 import '../providers/font_size_provider.dart';
-import '../widgets/todo_item.dart';
 
 class GroceryScreen extends StatefulWidget {
   const GroceryScreen({super.key});
@@ -96,6 +95,18 @@ class _GroceryScreenState extends State<GroceryScreen> {
     final l10n = AppLocalizations.of(context)!;
     final fontSizeProvider = Provider.of<FontSizeProvider>(context);
     final scale = fontSizeProvider.fontScale;
+
+    // Define pastel colors for the cards
+    final List<Color> cardColors = [
+      const Color(0xFFC8E6C9), // Green 100
+      const Color(0xFFDCEDC8), // Light Green 100
+      const Color(0xFFF0F4C3), // Lime 100
+      const Color(0xFFFFF9C4), // Yellow 100
+      const Color(0xFFFFECB3), // Amber 100
+      const Color(0xFFFFE0B2), // Orange 100
+      const Color(0xFFFFCCBC), // Deep Orange 100
+      const Color(0xFFB2DFDB), // Teal 100
+    ];
     
     return Scaffold(
       backgroundColor: Colors.white,
@@ -114,70 +125,145 @@ class _GroceryScreenState extends State<GroceryScreen> {
         iconTheme: const IconThemeData(color: Colors.black87),
         automaticallyImplyLeading: false,
       ),
-      body: Stack(
-        children: [
-          Consumer<TodoProvider>(
-            builder: (context, provider, child) {
-              if (provider.isLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
+      body: SafeArea(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned.fill(
+              child: Consumer<TodoProvider>(
+                builder: (context, provider, child) {
+                  if (provider.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-              if (provider.groceries.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.shopping_cart_outlined, size: 100 * scale, color: Colors.grey.shade300),
-                      const SizedBox(height: 20),
-                      Text(
-                        l10n.noTasks,
-                        style: TextStyle(
-                          fontSize: 18 * scale,
-                          color: Colors.grey.shade500,
-                        ),
+                  if (provider.groceries.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.shopping_cart_outlined, size: 100 * scale, color: Colors.grey.shade300),
+                          const SizedBox(height: 20),
+                          Text(
+                            l10n.noTasks,
+                            style: TextStyle(
+                              fontSize: 18 * scale,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                );
-              }
+                    );
+                  }
 
-              return ListView.builder(
-                padding: const EdgeInsets.only(top: 16, bottom: 80, left: 20, right: 20),
-                itemCount: provider.groceries.length,
-                itemBuilder: (context, index) {
-                  return TodoItem(
-                    todo: provider.groceries[index],
-                    onStatusChanged: _onTaskCompleted,
+                  // Determine crossAxisCount based on screen width
+                  int crossAxisCount = MediaQuery.of(context).size.width > 600 ? 4 : 2;
+
+                  return GridView.builder(
+                    padding: EdgeInsets.all(20 * scale),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 16 * scale,
+                      mainAxisSpacing: 16 * scale,
+                      childAspectRatio: 1.0,
+                    ),
+                    itemCount: provider.groceries.length,
+                    itemBuilder: (context, index) {
+                      final todo = provider.groceries[index];
+                      final color = cardColors[index % cardColors.length];
+                      
+                      return GestureDetector(
+                onTap: () {
+                   final wasCompleted = todo.isCompleted;
+                   provider.toggleTodoStatus(todo.id);
+                   _onTaskCompleted(!wasCompleted);
+                },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: color,
+                            borderRadius: BorderRadius.circular(24 * scale),
+                            boxShadow: [
+                              BoxShadow(
+                                color: color.withOpacity(0.4),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          padding: EdgeInsets.all(16 * scale),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                               Row(
+                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                 children: [
+                                   Container(
+                                     padding: EdgeInsets.all(8 * scale),
+                                     decoration: BoxDecoration(
+                                       color: Colors.white.withOpacity(0.5),
+                                       shape: BoxShape.circle,
+                                     ),
+                                     child: Icon(
+                                       Icons.shopping_bag_outlined,
+                                       size: 20 * scale,
+                                       color: Colors.black54,
+                                     ),
+                                   ),
+                                   if (todo.isCompleted)
+                                     Icon(Icons.check_circle, color: Colors.white.withOpacity(0.6), size: 24 * scale),
+                                 ],
+                               ),
+                               Expanded(
+                                 child: Center(
+                                   child: Text(
+                                     todo.title,
+                                     style: TextStyle(
+                                       fontSize: 18 * scale,
+                                       fontWeight: FontWeight.bold,
+                                       color: Colors.black87,
+                                       decoration: todo.isCompleted ? TextDecoration.lineThrough : null,
+                                     ),
+                                     textAlign: TextAlign.center,
+                                     maxLines: 3,
+                                     overflow: TextOverflow.ellipsis,
+                                   ),
+                                 ),
+                               ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
-              );
-            },
-          ),
-          
-          // Confetti Widget
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: ConfettiWidget(
-              confettiController: _confettiController,
-              blastDirectionality: BlastDirectionality.explosive,
-              shouldLoop: false,
-              colors: const [
-                Colors.green,
-                Colors.blue,
-                Colors.pink,
-                Colors.orange,
-                Colors.purple,
-                Colors.yellow,
-              ],
-              createParticlePath: _drawStar,
-              emissionFrequency: 0.05,
-              numberOfParticles: 150,
-              gravity: 0.1,
-              minBlastForce: 60,
-              maxBlastForce: 120,
+              ),
             ),
-          ),
-        ],
+            
+            // Confetti Widget
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: ConfettiWidget(
+                confettiController: _confettiController,
+                blastDirectionality: BlastDirectionality.explosive,
+                shouldLoop: false,
+                colors: const [
+                  Colors.green,
+                  Colors.blue,
+                  Colors.pink,
+                  Colors.orange,
+                  Colors.purple,
+                  Colors.yellow,
+                ],
+                createParticlePath: _drawStar,
+                emissionFrequency: 0.05,
+                numberOfParticles: 150,
+                gravity: 0.1,
+                minBlastForce: 60,
+                maxBlastForce: 120,
+              ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddGroceryDialog(context),

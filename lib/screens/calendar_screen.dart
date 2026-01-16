@@ -52,9 +52,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
     // Safely access the controller
     EventController? controller;
     try {
+      // Use listen: false to avoid rebuilding if we are just accessing the controller
+      // However, CalendarControllerProvider.of usually listens. 
+      // We need to check if the widget is actually found.
       controller = CalendarControllerProvider.of(context).controller;
     } catch (e) {
       // Controller might not be found if the widget is not under CalendarControllerProvider
+      debugPrint('Error accessing CalendarController: $e');
       return;
     }
 

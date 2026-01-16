@@ -80,61 +80,66 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: Colors.blue,
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              // Top Header
-              _buildHeader(scale),
-              
-              // Main Content
-              Expanded(
-                child: todoProvider.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : ListView(
-                        scrollDirection: Axis.horizontal,
-                        padding: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 10 * scale),
-                        children: [
-                          if (todoProvider.profiles.isEmpty)
-                            Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(20 * scale),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text("No profiles found", style: TextStyle(fontSize: 16 * scale)),
-                                    ElevatedButton(
-                                      onPressed: () => todoProvider.resetData(), // Need to add this method
-                                      child: const Text("Reset Data"),
-                                    ),
-                                  ],
+      body: SafeArea(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned.fill(
+              child: Column(
+                children: [
+                // Top Header
+                _buildHeader(scale),
+                
+                // Main Content
+                Expanded(
+                  child: todoProvider.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : ListView(
+                          scrollDirection: Axis.horizontal,
+                          padding: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 10 * scale),
+                          children: [
+                            if (todoProvider.profiles.isEmpty)
+                              Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(20 * scale),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text("No profiles found", style: TextStyle(fontSize: 16 * scale)),
+                                      ElevatedButton(
+                                        onPressed: () => todoProvider.resetData(), // Need to add this method
+                                        child: const Text("Reset Data"),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            )
-                          else
-                            ...todoProvider.profiles.map((profile) {
-                              return ProfileColumn(
-                                profile: profile,
-                                todos: profileTodos[profile.id] ?? [],
-                                onAddPressed: () => _showAddTaskDialog(context, profileId: profile.id),
-                                onTaskCompleted: (todo, isCompleted) {
-                                  _onTaskCompleted(isCompleted);
-                                }, 
-                              );
-                            }),
-                          
-                          // Special Chores Column
-                          ChoresColumn(
-                            chores: chores,
-                            onChoreToggled: (chore, value) {
-                              todoProvider.toggleTodoStatus(chore.id);
-                              _onTaskCompleted(value);
-                            },
-                          ),
-                        ],
-                      ),
-              ),
-            ],
+                              )
+                            else
+                              ...todoProvider.profiles.map((profile) {
+                                return ProfileColumn(
+                                  profile: profile,
+                                  todos: profileTodos[profile.id] ?? [],
+                                  onAddPressed: () => _showAddTaskDialog(context, profileId: profile.id),
+                                  onTaskCompleted: (todo, isCompleted) {
+                                    todoProvider.toggleTodoStatus(todo.id);
+                                    _onTaskCompleted(isCompleted);
+                                  }, 
+                                );
+                              }),
+                            
+                            // Special Chores Column
+                            ChoresColumn(
+                              chores: chores,
+                              onChoreToggled: (chore, value) {
+                                todoProvider.toggleTodoStatus(chore.id);
+                                _onTaskCompleted(value);
+                              },
+                            ),
+                          ],
+                        ),
+                ),
+              ],
+            ),
           ),
           
           // Confetti Overlay
@@ -161,6 +166,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }
