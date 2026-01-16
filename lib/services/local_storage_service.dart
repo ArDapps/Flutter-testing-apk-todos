@@ -9,6 +9,7 @@ class LocalStorageService {
   static const String _profilesKey = 'profiles';
   static const String _onboardingKey = 'has_seen_onboarding';
   static const String _fontSizeKey = 'font_size_scale';
+  static const String _volumeKey = 'app_volume';
 
   Future<void> saveTodos(List<Todo> todos) async {
     final prefs = await SharedPreferences.getInstance();
@@ -69,5 +70,15 @@ class LocalStorageService {
   Future<double> getFontSize() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getDouble(_fontSizeKey) ?? 1.0;
+  }
+
+  Future<void> saveVolume(double volume) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_volumeKey, volume);
+  }
+
+  Future<double> getVolume() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble(_volumeKey) ?? 1.0;
   }
 }

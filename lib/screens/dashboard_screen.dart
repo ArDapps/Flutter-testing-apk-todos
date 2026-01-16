@@ -9,6 +9,7 @@ import 'package:todo_app/l10n/app_localizations.dart';
 import '../models/todo.dart';
 import '../providers/todo_provider.dart';
 import '../providers/font_size_provider.dart';
+import '../providers/sound_provider.dart';
 import '../widgets/profile_column.dart';
 import '../widgets/chores_column.dart';
 
@@ -48,11 +49,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.dispose();
   }
 
-  void _onTaskCompleted(bool isNowCompleted) {
+  Future<void> _onTaskCompleted(bool isNowCompleted, BuildContext context) async {
     if (isNowCompleted) {
+      final soundProvider = Provider.of<SoundProvider>(context, listen: false);
+      final volume = soundProvider.volume;
+      
       _confettiController.play();
-      _audioPlayer.play(AssetSource('sounds/clapping.mp3'));
-      _flutterTts.speak("Great job!");
+      
+      if (volume > 0) {
+        await _audioPlayer.setVolume(volume);
+        await _audioPlayer.play(AssetSource('sounds/clapping.mp3'));
+        
+        await _flutterTts.setVolume(volume);
+        await _flutterTts.speak("Great job!");
+      }
     }
   }
 
@@ -61,7 +71,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final fontSizeProvider = Provider.of<FontSizeProvider>(context);
     final scale = fontSizeProvider.fontScale;
     final todoProvider = Provider.of<TodoProvider>(context);
-
+    
     // Group todos by profile
     Map<String, List<Todo>> profileTodos = {};
     for (var profile in todoProvider.profiles) {
@@ -84,15 +94,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Positioned.fill(
-              child: Column(
-                children: [
-                // Top Header
-                _buildHeader(scale),
-                
-                // Main Content
-                Expanded(
-                  child: todoProvider.isLoading
+            CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(child: _buildHeader(scale)),
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 600 * scale,
+                    child: todoProvider.isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : ListView(
                           scrollDirection: Axis.horizontal,
@@ -122,7 +130,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   onAddPressed: () => _showAddTaskDialog(context, profileId: profile.id),
                                   onTaskCompleted: (todo, isCompleted) {
                                     todoProvider.toggleTodoStatus(todo.id);
-                                    _onTaskCompleted(isCompleted);
+                                    _onTaskCompleted(isCompleted, context);
                                   }, 
                                 );
                               }),
@@ -132,17 +140,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               chores: chores,
                               onChoreToggled: (chore, value) {
                                 todoProvider.toggleTodoStatus(chore.id);
-                                _onTaskCompleted(value);
+                                _onTaskCompleted(value, context);
                               },
                             ),
                           ],
                         ),
+                  ),
                 ),
               ],
             ),
-          ),
-          
-          // Confetti Overlay
+            
+            // Confetti Overlay
           Align(
             alignment: Alignment.bottomCenter,
             child: ConfettiWidget(

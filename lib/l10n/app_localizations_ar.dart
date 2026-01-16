@@ -133,4 +133,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sleep => 'نوم';
+
+  @override
+  String get volume => 'Volume';
 }

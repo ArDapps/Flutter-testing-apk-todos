@@ -7,6 +7,7 @@ import 'package:todo_app/l10n/app_localizations.dart';
 import 'providers/todo_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/font_size_provider.dart';
+import 'providers/sound_provider.dart';
 import 'screens/splash_screen.dart';
 
 void main() {
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider(create: (_) => TodoProvider()),
           ChangeNotifierProvider(create: (_) => LocaleProvider()),
           ChangeNotifierProvider(create: (_) => FontSizeProvider()),
+          ChangeNotifierProvider(create: (_) => SoundProvider()),
         ],
         child: Consumer2<LocaleProvider, FontSizeProvider>(
           builder: (context, localeProvider, fontSizeProvider, child) {

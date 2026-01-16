@@ -7,6 +7,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'dart:math';
 import '../providers/todo_provider.dart';
 import '../providers/font_size_provider.dart';
+import '../providers/sound_provider.dart';
 
 class GroceryScreen extends StatefulWidget {
   const GroceryScreen({super.key});
@@ -82,11 +83,20 @@ class _GroceryScreenState extends State<GroceryScreen> {
     super.dispose();
   }
 
-  void _onTaskCompleted(bool? isCompleted) {
+  Future<void> _onTaskCompleted(bool? isCompleted) async {
     if (isCompleted == true) {
+      final soundProvider = Provider.of<SoundProvider>(context, listen: false);
+      final volume = soundProvider.volume;
+      
       _confettiController.play();
-      _audioPlayer.play(AssetSource('sounds/clapping.mp3'));
-      _flutterTts.speak("Great job!");
+      
+      if (volume > 0) {
+        await _audioPlayer.setVolume(volume);
+        await _audioPlayer.play(AssetSource('sounds/clapping.mp3'));
+        
+        await _flutterTts.setVolume(volume);
+        await _flutterTts.speak("Great job!");
+      }
     }
   }
 

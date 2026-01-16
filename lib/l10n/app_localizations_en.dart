@@ -136,4 +136,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sleep => 'Sleep';
+
+  @override
+  String get volume => 'Volume';
 }

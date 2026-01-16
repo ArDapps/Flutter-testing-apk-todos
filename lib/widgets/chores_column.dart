@@ -39,33 +39,40 @@ class ChoresColumn extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Row(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                padding: EdgeInsets.all(12 * scale),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.cleaning_services, color: Colors.blue, size: 24 * scale),
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(12 * scale),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.cleaning_services, color: Colors.blue, size: 24 * scale),
+                  ),
+                  SizedBox(width: 12 * scale),
+                  Text(
+                    l10n.chores,
+                    style: TextStyle(
+                      fontSize: 24 * scale,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue.shade900,
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(width: 12 * scale),
-              Text(
-                l10n.chores,
-                style: TextStyle(
-                  fontSize: 24 * scale,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue.shade900,
-                ),
-              ),
+              SizedBox(height: 24 * scale),
             ],
           ),
-          SizedBox(height: 24 * scale),
 
           // Chores List
           Expanded(
             child: GridView.builder(
               padding: EdgeInsets.zero,
+              // Removed shrinkWrap and physics
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: 12 * scale,

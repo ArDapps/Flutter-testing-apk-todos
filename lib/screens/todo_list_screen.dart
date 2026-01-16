@@ -8,6 +8,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'dart:math';
 import '../providers/todo_provider.dart';
 import '../providers/font_size_provider.dart';
+import '../providers/sound_provider.dart';
 import '../models/todo.dart';
 
 class TodoListScreen extends StatefulWidget {
@@ -84,12 +85,21 @@ class _TodoListScreenState extends State<TodoListScreen> {
     super.dispose();
   }
 
-  void _onTaskCompleted(bool? isCompleted) {
+  Future<void> _onTaskCompleted(bool? isCompleted) async {
     if (isCompleted == true) {
+      final soundProvider = Provider.of<SoundProvider>(context, listen: false);
+      final volume = soundProvider.volume;
+      
       _confettiController.play();
-      _audioPlayer.play(AssetSource('sounds/clapping.mp3'));
-      // SystemSound.play(SystemSoundType.click); // Removed in favor of clapping sound
-      // _flutterTts.speak("Great job!"); // Optional: keep or remove based on preference
+      
+      if (volume > 0) {
+        await _audioPlayer.setVolume(volume);
+        await _audioPlayer.play(AssetSource('sounds/clapping.mp3'));
+        // SystemSound.play(SystemSoundType.click); // Removed in favor of clapping sound
+        
+        await _flutterTts.setVolume(volume);
+        // _flutterTts.speak("Great job!"); // Optional: keep or remove based on preference
+      }
     }
   }
 

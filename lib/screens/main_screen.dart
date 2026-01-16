@@ -131,43 +131,39 @@ class _MainScreenState extends State<MainScreen> {
                   );
                 }),
               ),
-              child: NavigationBar(
-              selectedIndex: _selectedIndex,
-              onDestinationSelected: (int index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
-              backgroundColor: Colors.white,
-              indicatorColor: const Color(0xFF1B5E20).withValues(alpha: 0.2),
-              destinations: [
-                NavigationDestination(
-                  icon: Icon(Icons.check_circle_outline, size: 24 * scale),
-                  selectedIcon: Icon(Icons.check_circle, size: 24 * scale, color: const Color(0xFF1B5E20)),
-                  label: l10n.todoTitle,
+              child: SizedBox(
+                height: 80 * scale,
+                child: NavigationBar(
+                  selectedIndex: _selectedIndex,
+                  onDestinationSelected: (int index) {
+                    setState(() {
+                      _selectedIndex = index;
+                    });
+                  },
+                  destinations: [
+                    NavigationDestination(
+                      icon: Icon(Icons.dashboard_outlined, size: 24 * scale),
+                      selectedIcon: Icon(Icons.dashboard, size: 24 * scale),
+                      label: l10n.lists, // Reusing 'lists' or 'todoTitle' as dashboard for now or add new string
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.list_alt_outlined, size: 24 * scale),
+                      selectedIcon: Icon(Icons.list_alt, size: 24 * scale),
+                      label: l10n.todoTitle,
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.shopping_cart_outlined, size: 24 * scale),
+                      selectedIcon: Icon(Icons.shopping_cart, size: 24 * scale),
+                      label: l10n.grocery,
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.settings_outlined, size: 24 * scale),
+                      selectedIcon: Icon(Icons.settings, size: 24 * scale),
+                      label: l10n.settings,
+                    ),
+                  ],
                 ),
-                NavigationDestination(
-                  icon: Icon(Icons.calendar_today_outlined, size: 24 * scale),
-                  selectedIcon: Icon(Icons.calendar_today, size: 24 * scale, color: const Color(0xFF1B5E20)),
-                  label: l10n.calendar,
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.list_alt, size: 24 * scale),
-                  selectedIcon: Icon(Icons.list, size: 24 * scale, color: const Color(0xFF1B5E20)),
-                  label: l10n.lists,
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.shopping_cart_outlined, size: 24 * scale),
-                  selectedIcon: Icon(Icons.shopping_cart, size: 24 * scale, color: const Color(0xFF1B5E20)),
-                  label: l10n.grocery,
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.settings_outlined, size: 24 * scale),
-                  selectedIcon: Icon(Icons.settings, size: 24 * scale, color: const Color(0xFF1B5E20)),
-                  label: l10n.settings,
-                ),
-              ],
-            ),
+              ),
           )
     );
   }

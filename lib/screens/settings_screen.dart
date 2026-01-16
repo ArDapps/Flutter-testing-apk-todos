@@ -1,9 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app/l10n/app_localizations.dart';
-import '../providers/locale_provider.dart';
 import '../providers/font_size_provider.dart';
+import '../providers/sound_provider.dart';
+import '../providers/locale_provider.dart';
 import '../services/local_storage_service.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -11,12 +11,14 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          AppLocalizations.of(context)!.settings,
-          style: TextStyle(
+          l10n.settings,
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black87,
           ),
@@ -31,8 +33,8 @@ class SettingsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           Text(
-            AppLocalizations.of(context)!.language,
-            style: TextStyle(
+            l10n.language,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
             ),
@@ -54,8 +56,8 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 30),
           Text(
-            AppLocalizations.of(context)!.fontSize,
-            style: TextStyle(
+            l10n.fontSize,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
             ),
@@ -92,34 +94,68 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 30),
+          
+          // Volume Control
+          Text(
+            l10n.volume,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+            child: Consumer<SoundProvider>(
+              builder: (context, soundProvider, child) {
+                return Row(
+                  children: [
+                    Icon(Icons.volume_mute, color: Colors.grey.shade600),
+                    Expanded(
+                      child: Slider(
+                        value: soundProvider.volume,
+                        min: 0,
+                        max: 1,
+                        activeColor: Theme.of(context).primaryColor,
+                        onChanged: (value) {
+                          soundProvider.setVolume(value);
+                        },
+                      ),
+                    ),
+                    Icon(Icons.volume_up, color: Colors.grey.shade600),
+                  ],
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 30),
           ElevatedButton(
             onPressed: () async {
               await LocalStorageService().clearOnboarding();
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(
-                      AppLocalizations.of(context)!.resetOnboardingSuccess,
-                      style: TextStyle(),
-                    ),
+                    content: Text(l10n.resetOnboardingSuccess),
                   ),
                 );
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 15),
+              backgroundColor: Colors.red.shade50,
+              foregroundColor: Colors.red,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: Text(
-              AppLocalizations.of(context)!.resetOnboarding,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: Text(l10n.resetOnboarding),
           ),
         ],
       ),
@@ -127,21 +163,24 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _buildLanguageOption(BuildContext context, String title, Locale locale) {
-    final provider = Provider.of<LocaleProvider>(context);
-    final isSelected = provider.locale.languageCode == locale.languageCode;
-
-    return ListTile(
-      title: Text(
-        title,
-        style: TextStyle(
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        ),
-      ),
-      trailing: isSelected
-          ? const Icon(Icons.check_circle, color: Color(0xFF1B5E20))
-          : null,
-      onTap: () {
-        provider.setLocale(locale);
+    return Consumer<LocaleProvider>(
+      builder: (context, provider, child) {
+        final isSelected = provider.locale.languageCode == locale.languageCode;
+        return ListTile(
+          title: Text(
+            title,
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? Theme.of(context).primaryColor : Colors.black87,
+            ),
+          ),
+          trailing: isSelected
+              ? Icon(Icons.check, color: Theme.of(context).primaryColor)
+              : null,
+          onTap: () {
+            provider.setLocale(locale);
+          },
+        );
       },
     );
   }

@@ -46,110 +46,117 @@ class ProfileColumn extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Profile Header
-          Row(
+          // Header Section
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              CircleAvatar(
-                radius: 24 * scale,
-                backgroundColor: profile.color,
-                child: Text(
-                  profile.initial,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20 * scale,
-                  ),
-                ),
-              ),
-              SizedBox(width: 12 * scale),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      profile.name,
+              // Profile Header
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 24 * scale,
+                    backgroundColor: profile.color,
+                    child: Text(
+                      profile.initial,
                       style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                         fontSize: 20 * scale,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 4 * scale),
-                    // Progress Pill
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8 * scale, vertical: 2 * scale),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.check, size: 12 * scale, color: Colors.black54),
-                          SizedBox(width: 4 * scale),
-                          Text(
-                            '$completedCount/$totalCount',
-                            style: TextStyle(
-                              fontSize: 12 * scale,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black54,
-                            ),
+                  ),
+                  SizedBox(width: 12 * scale),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          profile.name,
+                          style: TextStyle(
+                            fontSize: 20 * scale,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
                           ),
-                        ],
-                      ),
+                        ),
+                        SizedBox(height: 4 * scale),
+                        // Progress Pill
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 8 * scale, vertical: 2 * scale),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.check, size: 12 * scale, color: Colors.black54),
+                              SizedBox(width: 4 * scale),
+                              Text(
+                                '$completedCount/$totalCount',
+                                style: TextStyle(
+                                  fontSize: 12 * scale,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                  // Star/Points Pill (Mock)
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10 * scale, vertical: 6 * scale),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF3E0), // Light orange
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.star, size: 16 * scale, color: Colors.orange),
+                        SizedBox(width: 4 * scale),
+                        Text(
+                          '10',
+                          style: TextStyle(
+                            fontSize: 14 * scale,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange.shade800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 24 * scale),
+              
+              // Time of day icons (Mock)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildTimeIcon(Icons.wb_sunny_outlined, true, profile.color, scale),
+                  _buildTimeIcon(Icons.wb_twilight, false, profile.color, scale),
+                  _buildTimeIcon(Icons.nights_stay_outlined, false, profile.color, scale),
+                  _buildTimeIcon(Icons.cleaning_services_outlined, false, profile.color, scale),
+                ],
+              ),
+              SizedBox(height: 20 * scale),
+              
+              Text(
+                l10n.morning,
+                style: TextStyle(
+                  fontSize: 18 * scale,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
               ),
-              // Star/Points Pill (Mock)
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10 * scale, vertical: 6 * scale),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF3E0), // Light orange
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.star, size: 16 * scale, color: Colors.orange),
-                    SizedBox(width: 4 * scale),
-                    Text(
-                      '10',
-                      style: TextStyle(
-                        fontSize: 14 * scale,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange.shade800,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              SizedBox(height: 12 * scale),
             ],
           ),
-          SizedBox(height: 24 * scale),
-          
-          // Time of day icons (Mock)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildTimeIcon(Icons.wb_sunny_outlined, true, profile.color, scale),
-              _buildTimeIcon(Icons.wb_twilight, false, profile.color, scale),
-              _buildTimeIcon(Icons.nights_stay_outlined, false, profile.color, scale),
-              _buildTimeIcon(Icons.cleaning_services_outlined, false, profile.color, scale),
-            ],
-          ),
-          SizedBox(height: 20 * scale),
-          
-          Text(
-            l10n.morning,
-            style: TextStyle(
-              fontSize: 18 * scale,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          SizedBox(height: 12 * scale),
 
-          // Tasks Grid
+          // Tasks Grid (Expanded)
           Expanded(
             child: GridView.builder(
               padding: EdgeInsets.zero,
@@ -217,14 +224,17 @@ class ProfileColumn extends StatelessWidget {
             ),
           ),
           
-          SizedBox(height: 10 * scale),
-          
           // Add Button
-          Center(
-            child: IconButton(
-              onPressed: onAddPressed,
-              icon: Icon(Icons.add_circle, color: profile.color, size: 48 * scale),
-            ),
+          Column(
+            children: [
+              SizedBox(height: 10 * scale),
+              Center(
+                child: IconButton(
+                  onPressed: onAddPressed,
+                  icon: Icon(Icons.add_circle, color: profile.color, size: 48 * scale),
+                ),
+              ),
+            ],
           ),
         ],
       ),
