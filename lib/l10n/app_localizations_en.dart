@@ -139,4 +139,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get volume => 'Volume';
+
+  @override
+  String get addEvent => 'Add Event';
+
+  @override
+  String get eventTitle => 'Event Title';
+
+  @override
+  String get startTime => 'Start Time';
+
+  @override
+  String get endTime => 'End Time';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get family => 'Family';
+
+  @override
+  String get birthdays => 'Birthdays';
+
+  @override
+  String get holidays => 'Holidays';
 }

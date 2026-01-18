@@ -41,5 +41,14 @@
   "meals": "وجبات",
   "photos": "صور",
   "lists": "قوائم",
-  "sleep": "نوم"
+  "sleep": "نوم",
+  "volume": "مستوى الصوت",
+  "addEvent": "إضافة حدث",
+  "eventTitle": "عنوان الحدث",
+  "startTime": "وقت البدء",
+  "endTime": "وقت الانتهاء",
+  "close": "إغلاق",
+  "family": "عائلة",
+  "birthdays": "أعياد ميلاد",
+  "holidays": "عطلات"
 }

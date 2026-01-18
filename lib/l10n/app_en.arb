@@ -42,5 +42,13 @@
   "photos": "Photos",
   "lists": "Lists",
   "sleep": "Sleep",
-  "volume": "Volume"
+  "volume": "Volume",
+  "addEvent": "Add Event",
+  "eventTitle": "Event Title",
+  "startTime": "Start Time",
+  "endTime": "End Time",
+  "close": "Close",
+  "family": "Family",
+  "birthdays": "Birthdays",
+  "holidays": "Holidays"
 }

@@ -135,5 +135,29 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sleep => 'نوم';
 
   @override
-  String get volume => 'Volume';
+  String get volume => 'مستوى الصوت';
+
+  @override
+  String get addEvent => 'إضافة حدث';
+
+  @override
+  String get eventTitle => 'عنوان الحدث';
+
+  @override
+  String get startTime => 'وقت البدء';
+
+  @override
+  String get endTime => 'وقت الانتهاء';
+
+  @override
+  String get close => 'إغلاق';
+
+  @override
+  String get family => 'عائلة';
+
+  @override
+  String get birthdays => 'أعياد ميلاد';
+
+  @override
+  String get holidays => 'عطلات';
 }

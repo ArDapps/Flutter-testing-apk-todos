@@ -54,45 +54,8 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 30),
-          Text(
-            l10n.fontSize,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade200),
-            ),
-            child: Consumer<FontSizeProvider>(
-              builder: (context, fontSizeProvider, _) {
-                return Column(
-                  children: [
-                    RadioListTile<double>(
-                      title: const Text('1x'),
-                      value: 1.0,
-                      groupValue: fontSizeProvider.fontScale,
-                      onChanged: (value) => fontSizeProvider.setFontScale(value!),
-                      activeColor: Theme.of(context).primaryColor,
-                    ),
-                    const Divider(height: 1),
-                    RadioListTile<double>(
-                      title: const Text('1.5x'),
-                      value: 1.5,
-                      groupValue: fontSizeProvider.fontScale,
-                      onChanged: (value) => fontSizeProvider.setFontScale(value!),
-                      activeColor: Theme.of(context).primaryColor,
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
+       
+         
           const SizedBox(height: 30),
           
           // Volume Control

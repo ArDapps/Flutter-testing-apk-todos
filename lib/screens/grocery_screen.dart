@@ -5,6 +5,10 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:math';
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import '../providers/todo_provider.dart';
 import '../providers/font_size_provider.dart';
 import '../providers/sound_provider.dart';
@@ -20,6 +24,10 @@ class _GroceryScreenState extends State<GroceryScreen> {
   late ConfettiController _confettiController;
   late FlutterTts _flutterTts;
   late AudioPlayer _audioPlayer;
+  double? _exchangeRate;
+  DateTime? _lastUpdated;
+  bool _isLoadingCurrency = false;
+  String? _currencyError;
 
   @override
   void initState() {
@@ -27,6 +35,41 @@ class _GroceryScreenState extends State<GroceryScreen> {
     _confettiController = ConfettiController(duration: const Duration(seconds: 2));
     _audioPlayer = AudioPlayer();
     _initTts();
+    _fetchCurrencyRate();
+  }
+
+  Future<void> _fetchCurrencyRate() async {
+    setState(() {
+      _isLoadingCurrency = true;
+      _currencyError = null;
+    });
+
+    try {
+      final response = await http.get(Uri.parse('https://api.exchangerate-api.com/v4/latest/USD'));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _exchangeRate = (data['rates']['SAR'] as num).toDouble();
+          _lastUpdated = DateTime.now();
+          _isLoadingCurrency = false;
+        });
+      } else {
+        setState(() {
+          _currencyError = 'Service Unavailable';
+          _isLoadingCurrency = false;
+        });
+      }
+    } on SocketException {
+       setState(() {
+        _currencyError = 'No Internet Connection\nPlease connect to network';
+        _isLoadingCurrency = false;
+      });
+    } catch (e) {
+      setState(() {
+        _currencyError = 'Error loading data';
+        _isLoadingCurrency = false;
+      });
+    }
   }
 
   Future<void> _initTts() async {
@@ -139,114 +182,119 @@ class _GroceryScreenState extends State<GroceryScreen> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Positioned.fill(
-              child: Consumer<TodoProvider>(
-                builder: (context, provider, child) {
-                  if (provider.isLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+            Column(
+              children: [
+                _buildCurrencyCard(scale),
+                Expanded(
+                  child: Consumer<TodoProvider>(
+                    builder: (context, provider, child) {
+                      if (provider.isLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-                  if (provider.groceries.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.shopping_cart_outlined, size: 100 * scale, color: Colors.grey.shade300),
-                          const SizedBox(height: 20),
-                          Text(
-                            l10n.noTasks,
-                            style: TextStyle(
-                              fontSize: 18 * scale,
-                              color: Colors.grey.shade500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  // Determine crossAxisCount based on screen width
-                  int crossAxisCount = MediaQuery.of(context).size.width > 600 ? 4 : 2;
-
-                  return GridView.builder(
-                    padding: EdgeInsets.all(20 * scale),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      crossAxisSpacing: 16 * scale,
-                      mainAxisSpacing: 16 * scale,
-                      childAspectRatio: 1.0,
-                    ),
-                    itemCount: provider.groceries.length,
-                    itemBuilder: (context, index) {
-                      final todo = provider.groceries[index];
-                      final color = cardColors[index % cardColors.length];
-                      
-                      return GestureDetector(
-                onTap: () {
-                   final wasCompleted = todo.isCompleted;
-                   provider.toggleTodoStatus(todo.id);
-                   _onTaskCompleted(!wasCompleted);
-                },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(24 * scale),
-                            boxShadow: [
-                              BoxShadow(
-                                color: color.withOpacity(0.4),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
+                      if (provider.groceries.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.shopping_cart_outlined, size: 100 * scale, color: Colors.grey.shade300),
+                              const SizedBox(height: 20),
+                              Text(
+                                l10n.noTasks,
+                                style: TextStyle(
+                                  fontSize: 18 * scale,
+                                  color: Colors.grey.shade500,
+                                ),
                               ),
                             ],
                           ),
-                          padding: EdgeInsets.all(16 * scale),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                               Row(
-                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                 children: [
-                                   Container(
-                                     padding: EdgeInsets.all(8 * scale),
-                                     decoration: BoxDecoration(
-                                       color: Colors.white.withOpacity(0.5),
-                                       shape: BoxShape.circle,
-                                     ),
-                                     child: Icon(
-                                       Icons.shopping_bag_outlined,
-                                       size: 20 * scale,
-                                       color: Colors.black54,
-                                     ),
-                                   ),
-                                   if (todo.isCompleted)
-                                     Icon(Icons.check_circle, color: Colors.white.withOpacity(0.6), size: 24 * scale),
-                                 ],
-                               ),
-                               Expanded(
-                                 child: Center(
-                                   child: Text(
-                                     todo.title,
-                                     style: TextStyle(
-                                       fontSize: 18 * scale,
-                                       fontWeight: FontWeight.bold,
-                                       color: Colors.black87,
-                                       decoration: todo.isCompleted ? TextDecoration.lineThrough : null,
-                                     ),
-                                     textAlign: TextAlign.center,
-                                     maxLines: 3,
-                                     overflow: TextOverflow.ellipsis,
-                                   ),
-                                 ),
-                               ),
-                            ],
-                          ),
+                        );
+                      }
+
+                      // Determine crossAxisCount based on screen width
+                      int crossAxisCount = MediaQuery.of(context).size.width > 600 ? 4 : 2;
+
+                      return GridView.builder(
+                        padding: EdgeInsets.all(20 * scale),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 16 * scale,
+                          mainAxisSpacing: 16 * scale,
+                          childAspectRatio: 1.0,
                         ),
+                        itemCount: provider.groceries.length,
+                        itemBuilder: (context, index) {
+                          final todo = provider.groceries[index];
+                          final color = cardColors[index % cardColors.length];
+                          
+                          return GestureDetector(
+                            onTap: () {
+                               final wasCompleted = todo.isCompleted;
+                               provider.toggleTodoStatus(todo.id);
+                               _onTaskCompleted(!wasCompleted);
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: color,
+                                borderRadius: BorderRadius.circular(24 * scale),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: color.withOpacity(0.4),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              padding: EdgeInsets.all(16 * scale),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                   Row(
+                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                     children: [
+                                       Container(
+                                         padding: EdgeInsets.all(8 * scale),
+                                         decoration: BoxDecoration(
+                                           color: Colors.white.withOpacity(0.5),
+                                           shape: BoxShape.circle,
+                                         ),
+                                         child: Icon(
+                                           Icons.shopping_bag_outlined,
+                                           size: 20 * scale,
+                                           color: Colors.black54,
+                                         ),
+                                       ),
+                                       if (todo.isCompleted)
+                                         Icon(Icons.check_circle, color: Colors.white.withOpacity(0.6), size: 24 * scale),
+                                     ],
+                                   ),
+                                   Expanded(
+                                     child: Center(
+                                       child: Text(
+                                         todo.title,
+                                         style: TextStyle(
+                                           fontSize: 18 * scale,
+                                           fontWeight: FontWeight.bold,
+                                           color: Colors.black87,
+                                           decoration: todo.isCompleted ? TextDecoration.lineThrough : null,
+                                         ),
+                                         textAlign: TextAlign.center,
+                                         maxLines: 3,
+                                         overflow: TextOverflow.ellipsis,
+                                       ),
+                                     ),
+                                   ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       );
                     },
-                  );
-                },
-              ),
+                  ),
+                ),
+              ],
             ),
             
             // Confetti Widget
@@ -279,6 +327,98 @@ class _GroceryScreenState extends State<GroceryScreen> {
         onPressed: () => _showAddGroceryDialog(context),
         backgroundColor: const Color(0xFF1B5E20),
         child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _buildCurrencyCard(double scale) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(20 * scale, 10 * scale, 20 * scale, 0),
+      padding: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 16 * scale),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.green.shade50, Colors.green.shade100],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20 * scale),
+        border: Border.all(color: Colors.green.shade200),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "USD to SAR",
+                style: TextStyle(
+                  fontSize: 14 * scale,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.green.shade800,
+                ),
+              ),
+              if (_lastUpdated != null)
+                Text(
+                  "Last updated: ${DateFormat('hh:mm a').format(_lastUpdated!)}",
+                  style: TextStyle(
+                    fontSize: 10 * scale,
+                    color: Colors.green.shade600,
+                  ),
+                ),
+              SizedBox(height: 4 * scale),
+              if (_isLoadingCurrency)
+                SizedBox(
+                  height: 32 * scale,
+                  width: 32 * scale,
+                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                )
+              else if (_currencyError != null)
+                 Row(
+                   children: [
+                     Icon(Icons.wifi_off, color: Colors.red.shade400, size: 24 * scale),
+                     SizedBox(width: 8 * scale),
+                     Text(
+                      _currencyError!,
+                      style: TextStyle(
+                        fontSize: 14 * scale,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red.shade700,
+                      ),
+                    ),
+                   ],
+                 )
+              else
+                Text(
+                  "${_exchangeRate!.toStringAsFixed(2)}",
+                  style: TextStyle(
+                    fontSize: 32 * scale,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green.shade900,
+                  ),
+                ),
+            ],
+          ),
+          InkWell(
+            onTap: _fetchCurrencyRate,
+            borderRadius: BorderRadius.circular(50),
+            child: Container(
+              padding: EdgeInsets.all(12 * scale),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.green.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(Icons.refresh, color: Colors.green.shade700, size: 24 * scale),
+            ),
+          ),
+        ],
       ),
     );
   }

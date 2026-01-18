@@ -62,6 +62,9 @@ class _MainScreenState extends State<MainScreen> {
                           ],
                         ),
                         backgroundColor: Colors.white,
+                        indicatorShape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16 * scale),
+                        ),
                         selectedIconTheme: IconThemeData(color: const Color(0xFF1B5E20), size: 30 * scale),
                         unselectedIconTheme: IconThemeData(color: Colors.grey, size: 24 * scale),
                         selectedLabelTextStyle: TextStyle(
@@ -144,11 +147,16 @@ class _MainScreenState extends State<MainScreen> {
                     NavigationDestination(
                       icon: Icon(Icons.dashboard_outlined, size: 24 * scale),
                       selectedIcon: Icon(Icons.dashboard, size: 24 * scale),
-                      label: l10n.lists, // Reusing 'lists' or 'todoTitle' as dashboard for now or add new string
+                      label: l10n.organizeTitle,
                     ),
                     NavigationDestination(
-                      icon: Icon(Icons.list_alt_outlined, size: 24 * scale),
-                      selectedIcon: Icon(Icons.list_alt, size: 24 * scale),
+                      icon: Icon(Icons.calendar_today_outlined, size: 24 * scale),
+                      selectedIcon: Icon(Icons.calendar_today, size: 24 * scale),
+                      label: l10n.calendar,
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.list_alt, size: 24 * scale),
+                      selectedIcon: Icon(Icons.list, size: 24 * scale),
                       label: l10n.todoTitle,
                     ),
                     NavigationDestination(

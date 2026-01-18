@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:intl/intl.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:todo_app/l10n/app_localizations.dart';
 import '../providers/font_size_provider.dart';
+import '../providers/locale_provider.dart';
 
 enum CalendarViewType { month, week, day }
 
@@ -138,8 +140,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     final fontSizeProvider = Provider.of<FontSizeProvider>(context);
+    final localeProvider = Provider.of<LocaleProvider>(context);
     final scale = fontSizeProvider.fontScale;
     final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+    final l10n = AppLocalizations.of(context)!;
+    
+    // Set Hijri locale
+    HijriCalendar.setLocal(localeProvider.locale.languageCode);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -213,6 +220,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Future<void> _showAddEventDialog(DateTime date) async {
+    final l10n = AppLocalizations.of(context)!;
     final titleController = TextEditingController();
     TimeOfDay startTime = const TimeOfDay(hour: 9, minute: 0);
     TimeOfDay endTime = const TimeOfDay(hour: 10, minute: 0);
@@ -223,18 +231,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text("Add Event"),
+              title: Text(l10n.addEvent),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
                     controller: titleController,
-                    decoration: const InputDecoration(labelText: "Event Title"),
+                    decoration: InputDecoration(labelText: l10n.eventTitle),
                     autofocus: true,
                   ),
                   const SizedBox(height: 16),
                   ListTile(
-                    title: const Text("Start Time"),
+                    title: Text(l10n.startTime),
                     trailing: Text(startTime.format(context)),
                     onTap: () async {
                       final picked = await showTimePicker(context: context, initialTime: startTime);
@@ -244,7 +252,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     },
                   ),
                   ListTile(
-                    title: const Text("End Time"),
+                    title: Text(l10n.endTime),
                     trailing: Text(endTime.format(context)),
                     onTap: () async {
                       final picked = await showTimePicker(context: context, initialTime: endTime);
@@ -258,7 +266,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text("Cancel"),
+                  child: Text(l10n.cancel),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -274,7 +282,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       Navigator.pop(context);
                     }
                   },
-                  child: const Text("Add"),
+                  child: Text(l10n.add),
                 ),
               ],
             );
@@ -285,15 +293,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   void _showEventDetails(CalendarEventData event) {
+    final l10n = AppLocalizations.of(context)!;
+    final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
+    final localeCode = localeProvider.locale.languageCode;
+    final timeFormat = DateFormat.jm(localeCode);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(event.title),
-        content: Text("Time: ${event.startTime?.toString().substring(11, 16)} - ${event.endTime?.toString().substring(11, 16)}"),
+        content: Text("${timeFormat.format(event.startTime!)} - ${timeFormat.format(event.endTime!)}"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Close"),
+            child: Text(l10n.close),
           ),
           TextButton(
              onPressed: () {
@@ -301,7 +314,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                Navigator.pop(context);
              },
              style: TextButton.styleFrom(foregroundColor: Colors.red),
-             child: const Text("Delete"),
+             child: Text(l10n.delete),
           ),
         ],
       ),
@@ -309,7 +322,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildWeekDaysHeader(double scale) {
-    final days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final localeCode = localeProvider.locale.languageCode;
+    
+    // Create a reference date that is a Monday (e.g., 2023-11-20)
+    DateTime refDate = DateTime(2023, 11, 20); 
+    
+    List<String> days = [];
+    for (int i = 0; i < 7; i++) {
+        days.add(DateFormat.E(localeCode).format(refDate.add(Duration(days: i))));
+    }
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0 * scale),
       child: Row(
@@ -320,6 +343,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             fontWeight: FontWeight.bold,
             fontSize: 14 * scale,
             color: Colors.black,
+            fontFamily: 'IBMPlexSansArabic',
           ),
         )).toList(),
       ),
@@ -328,8 +352,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Widget _buildTopHeader(double scale, bool isPortrait) {
     final now = _currentTime;
-    final dateFormat = DateFormat('EEEE MMMM dd, yyyy');
-    final timeFormat = DateFormat('HH:mm');
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final localeCode = localeProvider.locale.languageCode;
+    
+    final dateFormat = DateFormat('EEEE MMMM dd, yyyy', localeCode);
+    final timeFormat = DateFormat('HH:mm', localeCode);
+    final dayFormat = DateFormat('EEEE', localeCode);
     
     final hijriDate = HijriCalendar.fromDate(now);
     final hijriStr = '${hijriDate.hDay} ${hijriDate.longMonthName} ${hijriDate.hYear}';
@@ -339,7 +367,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          now.weekday == DateTime.tuesday ? "Tuesday" : DateFormat('EEEE').format(now), // Dynamic but mock style
+          dayFormat.format(now),
           style: TextStyle(
             fontSize: 16 * scale,
             color: Colors.black,
@@ -516,13 +544,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildFilterBar(double scale) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 10 * scale),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Calendar",
+            l10n.calendar,
             style: TextStyle(
               fontSize: 24 * scale,
               fontFamily: 'IBMPlexSansArabic',
@@ -542,9 +571,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 _buildAvatar(const Color(0xFFF48FB1), scale),
                 
                 SizedBox(width: 10 * scale),
-                _buildFilterPill("Family", Colors.blue, Icons.people, scale),
-                _buildFilterPill("Birthdays", Colors.green, Icons.cake, scale),
-                _buildFilterPill("Holidays", Colors.orange, Icons.shopping_bag, scale),
+                _buildFilterPill(l10n.family, Colors.blue, Icons.people, scale),
+                _buildFilterPill(l10n.birthdays, Colors.green, Icons.cake, scale),
+                _buildFilterPill(l10n.holidays, Colors.orange, Icons.shopping_bag, scale),
                 
                 SizedBox(width: 10 * scale),
                 Container(
@@ -559,7 +588,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ElevatedButton.icon(
                   onPressed: () {},
                   icon: Icon(Icons.calendar_today, size: 16 * scale),
-                  label: Text("Add Event", style: TextStyle(fontSize: 14 * scale)),
+                  label: Text(l10n.addEvent, style: TextStyle(fontSize: 14 * scale)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF37474F),
                     foregroundColor: Colors.white,
