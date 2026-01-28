@@ -44,13 +44,13 @@ class NasaqappDrawer extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   const Text(
-                    "Version 9",
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
-                  ),
+                "Version 2",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
+              ),
                 ],
               ),
             ),

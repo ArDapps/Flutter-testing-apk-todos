@@ -20,9 +20,8 @@ class UpdateProvider with ChangeNotifier {
   String _currentBuildNumber = '';
 
   // REPLACE THIS WITH YOUR DIRECT LINK TO version.json
-  // Google Drive Direct Link format: https://drive.google.com/uc?export=download&id=YOUR_FILE_ID
-  // Currently using a placeholder. Please update with the direct link to your version.json file.
-  static const String _updateUrl = 'https://drive.google.com/uc?export=download&id=1nYyMCeXa4k1C63Hw90j3JS0Or48t5U5W';
+  // GitHub Raw Link format: https://raw.githubusercontent.com/USER/REPO/BRANCH/PATH
+  static const String _updateUrl = 'https://raw.githubusercontent.com/ArDapps/Flutter-testing-apk-todos/V2/version.json';
 
   bool get autoUpdate => _autoUpdate;
   bool get isChecking => _isChecking;
