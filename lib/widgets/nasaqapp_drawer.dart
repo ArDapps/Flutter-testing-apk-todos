@@ -44,7 +44,7 @@ class NasaqappDrawer extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   const Text(
-                    "Version 8",
+                    "Version 9",
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,

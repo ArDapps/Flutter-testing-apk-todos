@@ -260,7 +260,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     SizedBox(height: 8 * scale),
                     Text(
-                      'Hello Version 6',
+                      'Hello Version 9',
                       style: TextStyle(
                         fontSize: 16 * scale,
                         color: Colors.blue,
@@ -308,8 +308,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                      showDialog(
               context: context,
               builder: (context) => AlertDialog(
-                title: const Text('Hello Version 3'),
-                content: const Text('Hello Version 3'),
+                title: const Text('Hello Version 9'),
+                content: const Text('Hello Version 9'),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
@@ -327,7 +327,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
           ),
-          child: Text('Hello V3', style: TextStyle(fontSize: 14 * scale)),
+          child: Text('Hello V9', style: TextStyle(fontSize: 14 * scale)),
                 ),
                 SizedBox(width: 16 * scale),
                 IconButton(
