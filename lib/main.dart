@@ -9,6 +9,7 @@ import 'providers/locale_provider.dart';
 import 'providers/font_size_provider.dart';
 import 'providers/sound_provider.dart';
 import 'providers/update_provider.dart';
+import 'providers/wifi_provider.dart';
 import 'screens/splash_screen.dart';
 
 void main() {
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider(create: (_) => FontSizeProvider()),
           ChangeNotifierProvider(create: (_) => SoundProvider()),
           ChangeNotifierProvider(create: (_) => UpdateProvider()),
+          ChangeNotifierProvider(create: (_) => WifiProvider()),
         ],
         child: Consumer2<LocaleProvider, FontSizeProvider>(
           builder: (context, localeProvider, fontSizeProvider, child) {

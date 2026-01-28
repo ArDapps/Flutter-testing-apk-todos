@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:app_settings/app_settings.dart';
 import 'package:todo_app/l10n/app_localizations.dart';
 import '../providers/font_size_provider.dart';
 import '../providers/sound_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/update_provider.dart';
+import '../providers/wifi_provider.dart';
 import '../services/local_storage_service.dart';
 import '../widgets/nasaqapp_drawer.dart';
 
@@ -64,6 +66,54 @@ class SettingsScreen extends StatelessWidget {
           ),
        
          
+          const SizedBox(height: 30),
+
+          // Wi-Fi Section
+          const Text(
+            "Wi-Fi", 
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Consumer<WifiProvider>(
+              builder: (context, wifiProvider, child) {
+                return ListTile(
+                  leading: Icon(
+                    wifiProvider.isWifiConnected ? Icons.wifi : Icons.wifi_off,
+                    color: wifiProvider.isWifiConnected ? Colors.green : Colors.grey,
+                  ),
+                  title: Text(
+                    wifiProvider.isWifiConnected 
+                        ? (wifiProvider.wifiName ?? "Connected") 
+                        : "Not Connected",
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(wifiProvider.connectionStatus),
+                  trailing: ElevatedButton(
+                    onPressed: () {
+                      AppSettings.openAppSettings(type: AppSettingsType.wifi);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      minimumSize: const Size(60, 36),
+                    ),
+                    child: Text(wifiProvider.isWifiConnected ? "Disconnect" : "Connect"),
+                  ),
+                );
+              },
+            ),
+          ),
+          
           const SizedBox(height: 30),
           
           // Updates Section
