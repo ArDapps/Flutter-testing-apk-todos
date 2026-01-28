@@ -160,4 +160,72 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get holidays => 'عطلات';
+
+  @override
+  String get menu => 'القائمة';
+
+  @override
+  String get ingredients => 'المكونات';
+
+  @override
+  String get instructions => 'التعليمات';
+
+  @override
+  String get calories => 'السعرات الحرارية';
+
+  @override
+  String get mealPancakes => 'بان كيك';
+
+  @override
+  String get mealSalad => 'سلطة دجاج';
+
+  @override
+  String get mealPasta => 'مكرونة ألفريدو';
+
+  @override
+  String get pancakesIngredients => 'دقيق، حليب، بيض، سكر';
+
+  @override
+  String get pancakesInstructions => 'اخلط المكونات واطبخها في المقلاة.';
+
+  @override
+  String get saladIngredients => 'خس، دجاج، طماطم، تتبيلة';
+
+  @override
+  String get saladInstructions => 'قطع الخضار واخلطها مع الدجاج.';
+
+  @override
+  String get pastaIngredients => 'مكرونة، كريمة، جبن، زبدة';
+
+  @override
+  String get pastaInstructions => 'اسلق المكرونة واخلطها مع الصلصة.';
+
+  @override
+  String get updates => 'تحديثات';
+
+  @override
+  String get autoUpdate => 'تحديث تلقائي';
+
+  @override
+  String get checkForUpdates => 'تحقق من وجود تحديثات';
+
+  @override
+  String get checkingForUpdates => 'جاري التحقق من التحديثات...';
+
+  @override
+  String get updateAvailable => 'يوجد تحديث';
+
+  @override
+  String get noUpdateAvailable => 'لا يوجد تحديث';
+
+  @override
+  String get downloading => 'جاري التحميل...';
+
+  @override
+  String get install => 'تثبيت';
+
+  @override
+  String currentVersion(Object version) {
+    return 'الإصدار الحالي: $version';
+  }
 }

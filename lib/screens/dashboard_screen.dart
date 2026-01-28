@@ -12,6 +12,7 @@ import '../providers/font_size_provider.dart';
 import '../providers/sound_provider.dart';
 import '../widgets/profile_column.dart';
 import '../widgets/chores_column.dart';
+import '../widgets/nasaqapp_drawer.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -84,6 +85,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     List<Todo> chores = todoProvider.todos.where((t) => t.category == 'chore').toList();
 
     return Scaffold(
+      drawer: const NasaqappDrawer(),
       backgroundColor: const Color(0xFFF5F7FA), // Soft background
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddTaskDialog(context),
@@ -216,8 +218,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Builder(
+                builder: (context) => IconButton(
+                  icon: Icon(Icons.menu, size: 28 * scale, color: Colors.black87),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ),
+              SizedBox(width: 16 * scale),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,6 +257,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                       ],
+                    ),
+                    SizedBox(height: 8 * scale),
+                    Text(
+                      'Hello Version 6',
+                      style: TextStyle(
+                        fontSize: 16 * scale,
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -279,6 +301,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(l10n.today, style: TextStyle(fontSize: 14 * scale, fontWeight: FontWeight.w600)),
+                ),
+                SizedBox(width: 16 * scale),
+                ElevatedButton(
+                  onPressed: () {
+                     showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Hello Version 3'),
+                content: const Text('Hello Version 3'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.purple,
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 8 * scale),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          child: Text('Hello V3', style: TextStyle(fontSize: 14 * scale)),
                 ),
                 SizedBox(width: 16 * scale),
                 IconButton(

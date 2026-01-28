@@ -163,4 +163,72 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get holidays => 'Holidays';
+
+  @override
+  String get menu => 'Menu';
+
+  @override
+  String get ingredients => 'Ingredients';
+
+  @override
+  String get instructions => 'Instructions';
+
+  @override
+  String get calories => 'Calories';
+
+  @override
+  String get mealPancakes => 'Pancakes';
+
+  @override
+  String get mealSalad => 'Chicken Salad';
+
+  @override
+  String get mealPasta => 'Pasta Alfredo';
+
+  @override
+  String get pancakesIngredients => 'Flour, Milk, Eggs, Sugar';
+
+  @override
+  String get pancakesInstructions => 'Mix ingredients and cook on pan.';
+
+  @override
+  String get saladIngredients => 'Lettuce, Chicken, Tomatoes, Dressing';
+
+  @override
+  String get saladInstructions => 'Chop vegetables and mix with chicken.';
+
+  @override
+  String get pastaIngredients => 'Pasta, Cream, Cheese, Butter';
+
+  @override
+  String get pastaInstructions => 'Boil pasta and mix with sauce.';
+
+  @override
+  String get updates => 'Updates';
+
+  @override
+  String get autoUpdate => 'Auto Update';
+
+  @override
+  String get checkForUpdates => 'Check for Updates';
+
+  @override
+  String get checkingForUpdates => 'Checking for updates...';
+
+  @override
+  String get updateAvailable => 'Update Available';
+
+  @override
+  String get noUpdateAvailable => 'No update available';
+
+  @override
+  String get downloading => 'Downloading...';
+
+  @override
+  String get install => 'Install';
+
+  @override
+  String currentVersion(Object version) {
+    return 'Current Version: $version';
+  }
 }

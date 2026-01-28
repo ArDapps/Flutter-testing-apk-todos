@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import '../providers/todo_provider.dart';
 import '../providers/font_size_provider.dart';
 import '../providers/sound_provider.dart';
+import '../widgets/nasaqapp_drawer.dart';
 
 class GroceryScreen extends StatefulWidget {
   const GroceryScreen({super.key});
@@ -162,8 +163,15 @@ class _GroceryScreenState extends State<GroceryScreen> {
     ];
     
     return Scaffold(
+      drawer: const NasaqappDrawer(),
       backgroundColor: Colors.white,
       appBar: AppBar(
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
         title: Text(
           l10n.grocery,
           style: TextStyle(
@@ -176,7 +184,6 @@ class _GroceryScreenState extends State<GroceryScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black87),
-        automaticallyImplyLeading: false,
       ),
       body: SafeArea(
         child: Stack(

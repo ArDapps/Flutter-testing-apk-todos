@@ -403,6 +403,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Holidays'**
   String get holidays;
+
+  /// No description provided for @menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get menu;
+
+  /// No description provided for @ingredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients'**
+  String get ingredients;
+
+  /// No description provided for @instructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions'**
+  String get instructions;
+
+  /// No description provided for @calories.
+  ///
+  /// In en, this message translates to:
+  /// **'Calories'**
+  String get calories;
+
+  /// No description provided for @mealPancakes.
+  ///
+  /// In en, this message translates to:
+  /// **'Pancakes'**
+  String get mealPancakes;
+
+  /// No description provided for @mealSalad.
+  ///
+  /// In en, this message translates to:
+  /// **'Chicken Salad'**
+  String get mealSalad;
+
+  /// No description provided for @mealPasta.
+  ///
+  /// In en, this message translates to:
+  /// **'Pasta Alfredo'**
+  String get mealPasta;
+
+  /// No description provided for @pancakesIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Flour, Milk, Eggs, Sugar'**
+  String get pancakesIngredients;
+
+  /// No description provided for @pancakesInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Mix ingredients and cook on pan.'**
+  String get pancakesInstructions;
+
+  /// No description provided for @saladIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Lettuce, Chicken, Tomatoes, Dressing'**
+  String get saladIngredients;
+
+  /// No description provided for @saladInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Chop vegetables and mix with chicken.'**
+  String get saladInstructions;
+
+  /// No description provided for @pastaIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Pasta, Cream, Cheese, Butter'**
+  String get pastaIngredients;
+
+  /// No description provided for @pastaInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Boil pasta and mix with sauce.'**
+  String get pastaInstructions;
+
+  /// No description provided for @updates.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates'**
+  String get updates;
+
+  /// No description provided for @autoUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto Update'**
+  String get autoUpdate;
+
+  /// No description provided for @checkForUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for Updates'**
+  String get checkForUpdates;
+
+  /// No description provided for @checkingForUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking for updates...'**
+  String get checkingForUpdates;
+
+  /// No description provided for @updateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Available'**
+  String get updateAvailable;
+
+  /// No description provided for @noUpdateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No update available'**
+  String get noUpdateAvailable;
+
+  /// No description provided for @downloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading...'**
+  String get downloading;
+
+  /// No description provided for @install.
+  ///
+  /// In en, this message translates to:
+  /// **'Install'**
+  String get install;
+
+  /// No description provided for @currentVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Version: {version}'**
+  String currentVersion(Object version);
 }
 
 class _AppLocalizationsDelegate

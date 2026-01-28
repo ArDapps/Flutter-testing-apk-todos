@@ -7,6 +7,7 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:todo_app/l10n/app_localizations.dart';
 import '../providers/font_size_provider.dart';
 import '../providers/locale_provider.dart';
+import '../widgets/nasaqapp_drawer.dart';
 
 enum CalendarViewType { month, week, day }
 
@@ -149,6 +150,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     HijriCalendar.setLocal(localeProvider.locale.languageCode);
 
     return Scaffold(
+      drawer: const NasaqappDrawer(),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
@@ -362,43 +364,58 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final hijriDate = HijriCalendar.fromDate(now);
     final hijriStr = '${hijriDate.hDay} ${hijriDate.longMonthName} ${hijriDate.hYear}';
 
-    final timeWidget = Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
+    final timeWidget = Row(
       children: [
-        Text(
-          dayFormat.format(now),
-          style: TextStyle(
-            fontSize: 16 * scale,
-            color: Colors.black,
+        Builder(
+          builder: (context) => IconButton(
+            icon: Icon(Icons.menu, size: 28 * scale, color: Colors.black),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
           ),
         ),
-        Text(
-          dateFormat.format(now),
-          style: TextStyle(
-            fontSize: 20 * scale,
-            color: Colors.black,
-            fontFamily: 'IBMPlexSansArabic', 
-          ),
-        ),
-        Text(
-          hijriStr,
-          style: TextStyle(
-            fontSize: 18 * scale,
-            color: const Color(0xFF1B5E20),
-            fontWeight: FontWeight.w600,
-            fontFamily: 'IBMPlexSansArabic', 
-          ),
-        ),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            timeFormat.format(now),
-            style: TextStyle(
-              fontSize: 60 * scale,
-              fontWeight: FontWeight.w300,
-              color: Colors.black87,
-            ),
+        SizedBox(width: 16 * scale),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                dayFormat.format(now),
+                style: TextStyle(
+                  fontSize: 16 * scale,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                dateFormat.format(now),
+                style: TextStyle(
+                  fontSize: 20 * scale,
+                  color: Colors.black,
+                  fontFamily: 'IBMPlexSansArabic', 
+                ),
+              ),
+              Text(
+                hijriStr,
+                style: TextStyle(
+                  fontSize: 18 * scale,
+                  color: const Color(0xFF1B5E20),
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'IBMPlexSansArabic', 
+                ),
+              ),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  timeFormat.format(now),
+                  style: TextStyle(
+                    fontSize: 60 * scale,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],

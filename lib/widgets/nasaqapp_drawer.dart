@@ -4,6 +4,8 @@ import 'package:todo_app/l10n/app_localizations.dart';
 import '../screens/calendar_screen.dart';
 import '../screens/grocery_screen.dart';
 import '../screens/settings_screen.dart';
+import '../screens/meals_screen.dart';
+import '../screens/dashboard_screen.dart';
 
 class NasaqappDrawer extends StatelessWidget {
   const NasaqappDrawer({super.key});
@@ -40,10 +42,26 @@ class NasaqappDrawer extends StatelessWidget {
                       color: Colors.grey.shade600,
                     ),
                   ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    "Version 8",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
                 ],
               ),
             ),
-            _buildDrawerItem(context, Icons.check_circle_outline, l10n.todoTitle, true, () {
+            _buildDrawerItem(context, Icons.dashboard_outlined, l10n.organizeTitle, false, () {
+               Navigator.pop(context);
+               Navigator.push(
+                 context,
+                 MaterialPageRoute(builder: (context) => const DashboardScreen()),
+               );
+            }),
+            _buildDrawerItem(context, Icons.check_circle_outline, l10n.todoTitle, false, () {
                Navigator.pop(context);
                Navigator.popUntil(context, (route) => route.isFirst);
             }),
@@ -52,6 +70,13 @@ class NasaqappDrawer extends StatelessWidget {
                Navigator.push(
                  context,
                  MaterialPageRoute(builder: (context) => const GroceryScreen()),
+               );
+            }),
+            _buildDrawerItem(context, Icons.restaurant_menu, l10n.menu, false, () {
+               Navigator.pop(context);
+               Navigator.push(
+                 context,
+                 MaterialPageRoute(builder: (context) => const MealsScreen()),
                );
             }),
             _buildDrawerItem(context, Icons.calendar_today, l10n.calendar, false, () {
